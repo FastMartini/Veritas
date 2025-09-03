@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Veritas",
-  "description": "A Chrome extension that passively analyzes news articles and provides credibility insights using AI.",
+  "description": "Veritas is your digital truth-compass. Stay informed, stay sharp, and let Veritas shine a light through the noise.",
   "version": "1.0.0",
 
   "permissions": ["storage", "activeTab", "scripting"],
