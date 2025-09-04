@@ -6,12 +6,12 @@ Veritas is a capstone project developed to address the growing challenge of misi
 
 
 
-# Challenges I ran into
+# Challenges We ran into
 
 
-# Accomplishments that I am proud of
+# Accomplishments that we are proud of
 
 
 
-# What I learned
+# What we learned
 
