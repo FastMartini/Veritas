@@ -1,4 +1,2 @@
 # Capstone I Meetings
 
-
-
