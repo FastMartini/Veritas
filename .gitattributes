@@ -1,3 +1,5 @@
+Fake.csv filter=lfs diff=lfs merge=lfs -text
+True.csv filter=lfs diff=lfs merge=lfs -text
 backend/data/Fake.csv filter=lfs diff=lfs merge=lfs -text
 backend/data/True.csv filter=lfs diff=lfs merge=lfs -text
 backend/data/fakenews.csv filter=lfs diff=lfs merge=lfs -text
