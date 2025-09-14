@@ -1,0 +1,8 @@
+{
+  "threshold": 0.5,
+  "label_map": {
+    "REAL": 1,
+    "FAKE": 0
+  },
+  "notes": "tfidf(1,2)+logreg_balanced"
+}
