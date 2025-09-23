@@ -1,7 +1,32 @@
 {
     "cSpell.words": [
+        "aljazeera",
+        "apnews",
+        "crsreports",
         "dataframe",
+        "Factbook",
+        "factcheck",
         "fakenews",
-        "kaggle"
+        "federalreserve",
+        "healthdata",
+        "icij",
+        "Jazeera",
+        "kaggle",
+        "mnli",
+        "noaa",
+        "pewresearch",
+        "politifact",
+        "propublica",
+        "publicintegrity",
+        "pydantic",
+        "RERANK",
+        "snopes",
+        "softmax",
+        "supremecourt",
+        "theconversation",
+        "undp",
+        "usgs",
+        "Welle",
+        "worldbank"
     ]
 }
