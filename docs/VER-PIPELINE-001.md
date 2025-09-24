@@ -169,6 +169,7 @@ Why Pydantic? Strong validation and consistent JSON shape for the extension and 
 # Troubleshooting & Environment Notes
 
 * **spaCy wheels vs Python version**: We standardized on Python 3.11 because spaCy 3.7 has mature wheels there. Newer Python (3.13) triggered source builds and failures.
+<img width="611" height="101" alt="Error downloading english model spaCy" src="https://github.com/user-attachments/assets/d2393d84-717c-4b97-b1da-e047397b345b" />
 
 * **Install sequence**:
   
