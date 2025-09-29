@@ -21,4 +21,5 @@ typing-inspection==0.4.1
 typing_extensions==4.15.0
 tzdata==2025.2
 uvicorn==0.35.0
-
+fastapi
+dotenv
