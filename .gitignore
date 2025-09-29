@@ -1,0 +1,16 @@
+# Python build/cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+backend/.venv/
+
+# VS Code settings
+.vscode/
+
+# Node modules (if you add npm packages later)
+node_modules/
+
+# macOS files
+.DS_Store
