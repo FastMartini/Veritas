@@ -1,0 +1,9 @@
+/* popup.css  // minimal styles */
+body { font-family: system-ui, sans-serif; width: 340px; margin: 0; padding: 12px; } /* base box */
+.h { margin: 0 0 8px 0; font-size: 16px; }                                           /* header */
+#analyzeBtn { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; }       /* button */
+.muted { color: #666; font-size: 12px; margin-top: 6px; }                             /* status */
+.list { list-style: none; margin: 10px 0 0 0; padding: 0; display: grid; gap: 8px; } /* list */
+.item { border: 1px solid #e5e5e5; border-radius: 8px; padding: 8px; }               /* card */
+.badge { font-size: 11px; padding: 2px 6px; border-radius: 999px; border: 1px solid #ddd; } /* badge */
+.src { font-size: 11px; margin-top: 6px; color: #555; }                               /* source */

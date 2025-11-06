@@ -21,13 +21,14 @@ def _has_named_entity(sent) -> bool:                                        # ch
 def _has_numeric_fact(sent_text: str) -> bool:                              # check if numbers/dates are present
     return bool(re.search(r"\d", sent_text)) or "%" in sent_text            # digit or percent sign
 
-def _is_declarative(sent_text: str) -> bool:                                # filter out questions/commands
-    s = sent_text.strip()                                                   # trim edges
-    if s.endswith("?"):                                                     # questions are usually not claims to verify
-        return False                                                        # reject questions
-    # simple cue words to prefer factual tone                               
-    cues = ("reported","announced","according to","stated","published","confirmed","data shows")
-    return any(cue in s.lower() for cue in cues) or True                    # weak prior: allow most sentences
+def _is_declarative(sent_text: str) -> bool:                 # decide if sentence states a claim
+    s = sent_text.strip()                                    # normalize ends
+    if not s or s.endswith("?"):                             # reject empty or questions
+        return False                                         # not a claim
+    cues = ("reported", "announced", "according to",         # factual-tone cues
+            "stated", "published", "confirmed", "data shows")
+    # prefer factual tone OR neutral default (no imperative/question markers)
+    return any(cue in s.lower() for cue in cues) or (not re.match(r"^\s*(please|do|let's)\b", s.lower()))
 
 def _salience(sent, idx: int) -> float:                                # idx = sentence position
     score = 0.0                                                        # base score
