@@ -763,7 +763,7 @@ VeritasExtension --> ClaimResult : displays
 ```
 # 7. Sequence Diagrams
 ## 7.1 UC1 - `VER-MVP-001-LaunchExtension`
-
+### Figure 5.
 ```mermaid
 sequenceDiagram
     autonumber
@@ -778,7 +778,7 @@ sequenceDiagram
 
 
 ## 7.2 UC2 - `VER-MVP-002-CaptureArticleText`  
-
+### Figure 6.
 ```mermaid
 sequenceDiagram
     autonumber
@@ -796,7 +796,7 @@ sequenceDiagram
 
 
 ## 7.3 UC3 - `VER-MVP-003-SendArticleDataToBackend` 
-
+### Figure 7.
 ```mermaid
 sequenceDiagram
     autonumber
@@ -813,7 +813,7 @@ sequenceDiagram
 
 
 ## 7.4 UC4 -  `VER-MVP-004-ValidateArticleData`  
-
+### Figure 8.
 ```mermaid
 sequenceDiagram
     autonumber
@@ -833,7 +833,7 @@ sequenceDiagram
 
 
 ## 7.5 UC5 - `VER-MVP-005-ExtractClaims`  
-
+### Figure 9.
 ```mermaid
 sequenceDiagram
     autonumber
@@ -850,7 +850,7 @@ sequenceDiagram
 
 
 ## 7.6 UC6 - `VER-MVP-006-PackageClaimsForAgent`  
-
+### Figure 10.
 ```mermaid
 sequenceDiagram
     autonumber
@@ -867,7 +867,7 @@ sequenceDiagram
 
 
 ## 7.7 UC7 - `VER-MVP-007-SendClaimsToAgent`  
-
+### Figure 11.
 ```mermaid
 sequenceDiagram
     autonumber
@@ -884,7 +884,7 @@ sequenceDiagram
 
 
 ## 7.8 UC8 - `VER-MVP-008-AgentEvidenceAnalysis`  
-
+### Figure 12.
 ```mermaid
 sequenceDiagram
     autonumber
@@ -904,7 +904,7 @@ sequenceDiagram
 
 
 ## 7.9 UC9 - `VER-MVP-009-ReceiveAgentResults`
-
+### Figure 13.
 ```mermaid
 sequenceDiagram
     autonumber
@@ -923,7 +923,7 @@ sequenceDiagram
 
 
 ## 7.10 UC10 - `VER-MVP-010-ReceiveBackendResults`  
-
+### Figure 14.
 ```mermaid
 sequenceDiagram
     autonumber
@@ -941,7 +941,7 @@ sequenceDiagram
 
 
 ## 7.11 UC11 - `VER-MVP-011-AnnotateArticle` 
-
+### Figure 15.
 ```mermaid
 sequenceDiagram
     autonumber
