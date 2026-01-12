@@ -37,7 +37,7 @@
     border-radius: 999px; /* Makes dot fully round. */
     background: var(--accent); /* Uses brand accent color. */
   } /* Ends logoDot styles. */
-  
+ 
   .title { /* Styles Veritas title. */
     font-size: 16px; /* Sets title size. */
     margin: 0; /* Removes default margin. */
