@@ -1,0 +1,177 @@
+:root { /* Defines global variables for the popup. */
+    --accent: rgb(226, 109, 79); /* Veritas brand accent color. */
+    --bg: #f7f7f8; /* Light background color. */
+    --card: #ffffff; /* Card background color. */
+    --text: #1f1f1f; /* Primary text color. */
+    --muted: #6b6b6b; /* Secondary text color. */
+    --line: #e6e6e6; /* Divider and border color. */
+  } /* Ends root variables. */
+  
+  * { box-sizing: border-box; } /* Ensures padding and borders are included in width. */
+  
+  body { /* Styles the main popup body. */
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; /* Sets system font stack. */
+    width: 360px; /* Sets popup width. */
+    margin: 0; /* Removes default margins. */
+    padding: 12px; /* Adds inner spacing. */
+    background: var(--bg); /* Applies background color. */
+    color: var(--text); /* Applies text color. */
+  } /* Ends body styles. */
+  
+  .top { /* Styles the header row. */
+    display: flex; /* Enables flex layout. */
+    align-items: center; /* Vertically centers items. */
+    justify-content: space-between; /* Pushes items to edges. */
+    margin-bottom: 10px; /* Adds spacing below header. */
+  } /* Ends top styles. */
+  
+  .brand { /* Styles brand group. */
+    display: flex; /* Enables flex layout. */
+    align-items: center; /* Aligns logo and title. */
+    gap: 8px; /* Adds spacing between logo and title. */
+  } /* Ends brand styles. */
+  
+  .logoDot { /* Styles small logo indicator. */
+    width: 10px; /* Sets dot width. */
+    height: 10px; /* Sets dot height. */
+    border-radius: 999px; /* Makes dot fully round. */
+    background: var(--accent); /* Uses brand accent color. */
+  } /* Ends logoDot styles. */
+  
+  .title { /* Styles Veritas title. */
+    font-size: 16px; /* Sets title size. */
+    margin: 0; /* Removes default margin. */
+    font-weight: 650; /* Sets semi-bold weight. */
+  } /* Ends title styles. */
+  
+  .pill { /* Styles status pill. */
+    font-size: 12px; /* Sets small text. */
+    padding: 4px 8px; /* Adds pill padding. */
+    border: 1px solid var(--line); /* Adds subtle border. */
+    border-radius: 999px; /* Makes it pill-shaped. */
+    background: #fff; /* Sets pill background. */
+  } /* Ends pill styles. */
+  
+  .card { /* Styles main card container. */
+    background: var(--card); /* Sets card background. */
+    border: 1px solid var(--line); /* Adds border. */
+    border-radius: 16px; /* Rounds corners. */
+    padding: 12px; /* Adds padding. */
+  } /* Ends card styles. */
+  
+  .hero { /* Styles the empty state block. */
+    padding: 6px 2px 12px 2px; /* Adds spacing around hero. */
+  } /* Ends hero styles. */
+  
+  .heroTitle { /* Styles empty-state title. */
+    font-size: 14px; /* Sets title size. */
+    font-weight: 650; /* Sets weight. */
+    margin-bottom: 4px; /* Adds spacing under title. */
+  } /* Ends heroTitle styles. */
+  
+  .heroSub { /* Styles empty-state subtitle. */
+    font-size: 12px; /* Sets subtitle size. */
+    color: var(--muted); /* Uses muted color. */
+  } /* Ends heroSub styles. */
+  
+  .primary { /* Styles main CTA button. */
+    width: 100%; /* Makes button full width. */
+    padding: 10px 12px; /* Adds button padding. */
+    border-radius: 12px; /* Rounds corners. */
+    border: 1px solid var(--line); /* Adds border. */
+    background: #fff; /* Default background. */
+    color: var(--text); /* Text color. */
+    font-weight: 650; /* Weight for prominence. */
+    cursor: not-allowed; /* Shows disabled cursor. */
+    opacity: 0.55; /* Visually indicates disabled. */
+  } /* Ends primary styles. */
+  
+  .section { /* Styles each collapsible section. */
+    border-top: 1px solid var(--line); /* Adds divider line. */
+    margin-top: 10px; /* Adds spacing above section. */
+    padding-top: 10px; /* Adds spacing inside section. */
+  } /* Ends section styles. */
+  
+  .sectionHdr { /* Styles the section header button. */
+    width: 100%; /* Full width. */
+    display: flex; /* Flex layout. */
+    justify-content: space-between; /* Space label and chevron. */
+    align-items: center; /* Center vertically. */
+    border: 0; /* Removes border. */
+    background: transparent; /* Transparent background. */
+    padding: 6px 0; /* Adds vertical padding. */
+    font-weight: 650; /* Emphasizes label. */
+    cursor: pointer; /* Pointer cursor. */
+  } /* Ends sectionHdr styles. */
+  
+  .sectionBody { /* Styles the collapsible body content. */
+    padding: 6px 0 0 0; /* Adds spacing at top. */
+  } /* Ends sectionBody styles. */
+  
+  .row { /* Styles key value rows. */
+    display: flex; /* Flex layout. */
+    justify-content: space-between; /* Spreads key and value. */
+    padding: 6px 0; /* Adds vertical padding. */
+  } /* Ends row styles. */
+  
+  .k { /* Styles key labels. */
+    font-size: 12px; /* Sets size. */
+    color: var(--muted); /* Muted key color. */
+  } /* Ends key styles. */
+  
+  .v { /* Styles value text. */
+    font-size: 12px; /* Sets size. */
+  } /* Ends value styles. */
+  
+  .meterRow { /* Styles meter rows. */
+    display: flex; /* Flex layout. */
+    align-items: center; /* Aligns vertically. */
+    justify-content: space-between; /* Spaces label and meter. */
+    padding: 8px 0; /* Adds spacing. */
+  } /* Ends meterRow styles. */
+  
+  .meter { /* Styles placeholder meters. */
+    width: 140px; /* Sets meter width. */
+    height: 8px; /* Sets meter height. */
+    border-radius: 999px; /* Rounds ends. */
+    background: linear-gradient(90deg, var(--accent) 25%, #f0f0f0 25%); /* Shows accent segment then neutral. */
+    border: 1px solid var(--line); /* Adds border. */
+  } /* Ends meter styles. */
+  
+  .verdict { /* Styles verdict badge. */
+    display: inline-block; /* Makes it badge-like. */
+    padding: 6px 10px; /* Adds padding. */
+    border-radius: 999px; /* Pill shape. */
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, #ffffff); /* Soft accent border. */
+    color: var(--accent); /* Accent text. */
+    font-weight: 650; /* Emphasizes verdict. */
+    font-size: 12px; /* Sets size. */
+  } /* Ends verdict styles. */
+  
+  .hint { /* Styles hint text. */
+    margin-top: 8px; /* Adds spacing. */
+    font-size: 12px; /* Sets size. */
+    color: var(--muted); /* Muted color. */
+  } /* Ends hint styles. */
+  
+  .foot { /* Styles footer row. */
+    display: flex; /* Flex layout. */
+    justify-content: space-between; /* Spaces elements. */
+    align-items: center; /* Vertical alignment. */
+    padding: 10px 4px 0 4px; /* Adds spacing. */
+  } /* Ends foot styles. */
+  
+  .linkBtn { /* Styles footer button. */
+    border: 0; /* Removes border. */
+    background: transparent; /* Transparent. */
+    color: var(--accent); /* Accent color. */
+    font-weight: 650; /* Emphasizes link. */
+    cursor: pointer; /* Pointer cursor. */
+    padding: 6px; /* Adds tap area. */
+  } /* Ends linkBtn styles. */
+  
+  .ver { /* Styles version label. */
+    font-size: 12px; /* Sets size. */
+    color: var(--muted); /* Muted color. */
+  } /* Ends version label. */
+  
