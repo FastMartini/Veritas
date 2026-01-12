@@ -31,12 +31,12 @@
     gap: 8px; /* Adds spacing between logo and title. */
   } /* Ends brand styles. */
   
-  .logoDot { /* Styles small logo indicator. */
-    width: 10px; /* Sets dot width. */
-    height: 10px; /* Sets dot height. */
-    border-radius: 999px; /* Makes dot fully round. */
-    background: var(--accent); /* Uses brand accent color. */
-  } /* Ends logoDot styles. */
+  .logoImg { /* Styles the brand logo image in the header. */
+    width: 16px; /* Sets a compact logo size. */
+    height: 16px; /* Keeps logo square. */
+    object-fit: contain; /* Ensures the image scales cleanly. */
+  }
+  
  
   .title { /* Styles Veritas title. */
     font-size: 16px; /* Sets title size. */
