@@ -16,20 +16,20 @@
     padding: 12px; /* Adds inner spacing. */
     background: var(--bg); /* Applies background color. */
     color: var(--text); /* Applies text color. */
-  } /* Ends body styles. */
+  } 
   
   .top { /* Styles the header row. */
     display: flex; /* Enables flex layout. */
     align-items: center; /* Vertically centers items. */
     justify-content: space-between; /* Pushes items to edges. */
     margin-bottom: 10px; /* Adds spacing below header. */
-  } /* Ends top styles. */
+  } 
   
   .brand { /* Styles brand group. */
     display: flex; /* Enables flex layout. */
     align-items: center; /* Aligns logo and title. */
     gap: 8px; /* Adds spacing between logo and title. */
-  } /* Ends brand styles. */
+  } 
   
   .logoImg { /* Styles the brand logo image in the header. */
     width: 16px; /* Sets a compact logo size. */
@@ -42,7 +42,7 @@
     font-size: 16px; /* Sets title size. */
     margin: 0; /* Removes default margin. */
     font-weight: 650; /* Sets semi-bold weight. */
-  } /* Ends title styles. */
+  } 
   
   .pill { /* Styles status pill. */
     font-size: 12px; /* Sets small text. */
@@ -50,18 +50,18 @@
     border: 1px solid var(--line); /* Adds subtle border. */
     border-radius: 999px; /* Makes it pill-shaped. */
     background: #fff; /* Sets pill background. */
-  } /* Ends pill styles. */
+  }
   
   .card { /* Styles main card container. */
     background: var(--card); /* Sets card background. */
     border: 1px solid var(--line); /* Adds border. */
     border-radius: 16px; /* Rounds corners. */
     padding: 12px; /* Adds padding. */
-  } /* Ends card styles. */
+  } 
   
   .hero { /* Styles the empty state block. */
     padding: 6px 2px 12px 2px; /* Adds spacing around hero. */
-  } /* Ends hero styles. */
+  } 
   
   .heroTitle { /* Styles empty-state title. */
     font-size: 14px; /* Sets title size. */
