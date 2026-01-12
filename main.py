@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+# Instantiate the FastAPI application
+app = FastAPI(title="Veritas API")
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+# Health check endpoint to verify server is running
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
