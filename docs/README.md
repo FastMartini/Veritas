@@ -656,7 +656,64 @@ Extension begins rendering annotations
 **Constraints:**  
 - Annotations must be readable and unobtrusive
 
+
+## 4.12 Use Case 12 – Manage User-Friendly Settings
+
+**Use Case ID:** `VER-MVP-012-ManageUserSettings`  
+**Level:** System-level UI interaction  
+
+**User Story:**  
+As a user, I want to configure Veritas settings through a clear and simple interface so that the tool behaves according to my preferences without requiring technical knowledge.
+
+---
+
+**Actor:**  
+User
+
+**Pre-Conditions:**  
+- Veritas extension is installed and enabled  
+- Extension UI is accessible from the browser toolbar  
+
+**Trigger:**  
+User opens the settings panel from the Veritas extension interface.
+
+**System Behavior:**  
+1. Extension displays a dedicated settings view  
+2. Current user preferences are loaded from local storage  
+3. Settings are grouped into clear categories such as display, analysis behavior, and performance  
+4. Each option includes descriptive labels and helper text  
+5. User modifies one or more settings using toggles, sliders, or dropdowns  
+6. Changes are validated in real time  
+7. Updated preferences are saved automatically  
+
+**Post-Conditions:**  
+- User preferences are persisted and applied to future analyses  
+
+**Alternate Flow:**  
+- User exits settings without making changes  
+
+**Extensions:**  
+- Preset profiles such as Minimal, Standard, and Detailed (future enhancement)  
+
+**Exceptions:**  
+- Local storage unavailable or write failure  
+
+**Concurrent Use:**  
+- Settings are scoped per browser profile  
+
+**Decision Support:**  
+- Frequency: Low to Medium  
+- Criticality: Medium  
+- Risk: Low  
+
+**Constraints:**  
+- Settings UI must be understandable without documentation  
+- No setting should require more than one interaction to enable or disable  
+- Changes must not require a browser refresh to take effect  
+
+
 # 5. Use Case Diagram
+
 ### Figure 3.
 
 ```mermaid
