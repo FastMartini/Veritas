@@ -180,11 +180,116 @@ User clicks the Veritas extension icon.
 **Constraints:**  
 - UI should open in under one second  
 - Interaction should require no more than one or two user actions  
-- Implemented using standard browser extension action entry point
+- Implemented using standard browser extension action entry point  
 
-## 4.2 Use Case 2 – Capture Article Text
+---
 
-**Use Case ID:** `VER-MVP-002-CaptureArticleText`  
+## 4.2 Use Case 2 – Capture Article Source
+**Use Case ID:** `VER-MVP-002-CaptureArticleSource`  
+**Level:** Internal system process  
+
+**User Story:**  
+As the Veritas extension, I want to identify the article’s publisher or source so that credibility analysis can incorporate source context.
+
+---
+
+**Actor:**  
+Veritas Browser Extension
+
+**Pre-Conditions:**  
+- Use Case 1 has started  
+- Content script has access to the DOM  
+
+**Trigger:**  
+Metadata capture phase begins  
+
+**System Behavior:**  
+1. Inspects page metadata for publisher or site name  
+2. Extracts source from structured metadata when available  
+3. Falls back to domain-based source identification  
+4. Normalizes the source name into a consistent format  
+5. Attaches source to article metadata  
+
+**Post-Conditions:**  
+- Article source is captured or marked as unknown  
+
+**Alternate Flow:**  
+- Source inferred solely from domain name  
+
+**Extensions:**  
+- Source reputation profiling (future)  
+
+**Exceptions:**  
+- Conflicting or ambiguous source metadata  
+
+**Concurrent Use:**  
+- Can execute across multiple tabs  
+
+**Decision Support:**  
+- Frequency: Once per analysis  
+- Criticality: Medium to High  
+- Risk: Medium  
+
+**Constraints:**  
+- Must avoid false attribution  
+- Must not significantly delay ingestion  
+
+---
+
+## 4.3 Use Case 3 – Capture Article Publication Date
+**Use Case ID:** `VER-MVP-003-CapturePublicationDate`  
+**Level:** Internal system process  
+
+**User Story:**  
+As the Veritas extension, I want to capture the article’s publication date so that analysis can account for timeliness and context.
+
+---
+
+**Actor:**  
+Veritas Browser Extension
+
+**Pre-Conditions:**  
+- Article page is loaded  
+- Metadata or visible date exists  
+
+**Trigger:**  
+Metadata capture phase begins  
+
+**System Behavior:**  
+1. Searches metadata for publication timestamps  
+2. Parses structured data timestamps  
+3. Attempts visible date extraction from the article body  
+4. Normalizes the date into a standard timestamp format  
+5. Attaches publication date to article metadata  
+
+**Post-Conditions:**  
+- Publication date is captured or marked unavailable  
+
+**Alternate Flow:**  
+- Uses last-modified date when publication date is missing  
+
+**Extensions:**  
+- Confidence scoring for extracted dates (future)  
+
+**Exceptions:**  
+- Invalid or conflicting date formats  
+
+**Concurrent Use:**  
+- Can run across multiple tabs  
+
+**Decision Support:**  
+- Frequency: Once per analysis  
+- Criticality: Medium  
+- Risk: Low to Medium  
+
+**Constraints:**  
+- Must handle international date formats  
+- Parsing must be deterministic  
+
+---
+
+## 4.4 Use Case 4 – Capture Article Text
+**Use Case ID:** `VER-MVP-004-CaptureArticleText`  
 **Level:** Internal system process  
 
 **User Story:**  
@@ -197,16 +302,17 @@ Veritas Browser Extension
 
 **Pre-Conditions:**  
 - Use Case 1 has started  
-- Content script is allowed to access the DOM  
+- Content script can access the DOM  
 
 **Trigger:**  
 Analysis is requested by the user  
 
 **System Behavior:**  
-1. Content script identifies the article container  
-2. Extracts visible article text and removes non-article elements  
-3. Captures URL and metadata  
-4. Prepares data for backend submission  
+1. Identifies the primary article container  
+2. Extracts visible article text  
+3. Removes non-article elements  
+4. Captures URL and associated metadata  
+5. Prepares data for backend submission  
 
 **Post-Conditions:**  
 - Cleaned article text and metadata are ready for transfer  
@@ -232,13 +338,14 @@ Analysis is requested by the user
 - Should not disrupt page layout  
 - Extraction must complete quickly  
 
-## 4.3 Use Case 3 – Send Article Data to Backend
+---
 
-**Use Case ID:** `VER-MVP-003-SendArticleDataToBackend`  
+## 4.5 Use Case 5 – Send Article Data to Backend
+**Use Case ID:** `VER-MVP-005-SendArticleDataToBackend`  
 **Level:** Internal system process  
 
 **User Story:**  
-As the Veritas extension, I want to send the captured article text and URL to FastAPI so that the article can be processed.
+As the Veritas extension, I want to send the captured article data to FastAPI so that the article can be processed.
 
 ---
 
@@ -246,16 +353,16 @@ As the Veritas extension, I want to send the captured article text and URL to Fa
 Veritas Browser Extension
 
 **Pre-Conditions:**  
-- Article text and URL are captured  
+- Article data is captured  
 - Backend endpoint is configured  
 
 **Trigger:**  
 Extension initiates the analysis request  
 
 **System Behavior:**  
-1. Forms a JSON payload with article data  
-2. Sends POST request to the FastAPI endpoint  
-3. Updates UI to processing state  
+1. Forms a JSON payload with article text and metadata  
+2. Sends a POST request to the FastAPI endpoint  
+3. Updates the UI to a processing state  
 
 **Post-Conditions:**  
 - Backend has received or attempted to receive the payload  
@@ -264,7 +371,7 @@ Extension initiates the analysis request
 - Retry once if network issues occur  
 
 **Extensions:**  
-- Support for authentication headers in future  
+- Support for authentication headers (future)  
 
 **Exceptions:**  
 - HTTP errors or request timeouts  
@@ -278,18 +385,13 @@ Extension initiates the analysis request
 - Risk: Medium  
 
 **Constraints:**  
-- User must see a clear indication that analysis began  
-- Acceptable network latency must be maintained  
-
-## 4.4 Use Case 4 – Validate Incoming Article Data
-
-**Use Case ID:** `VER-MVP-004-ValidateArticleData`  
-**Level:** Internal system process  
-
-**User Story:**  
-As the FastAPI backend, I want to validate the article data so that only proper requests are processed.
+- User must see a clear indication that analysis has begun  
 
 ---
+
+## 4.6 Use Case 6 – Validate Incoming Article Data
+**Use Case ID:** `VER-MVP-006-ValidateArticleData`  
+**Level:** Internal system process  
 
 **Actor:**  
 FastAPI Backend
@@ -307,7 +409,7 @@ FastAPI receives an analysis request
 4. Forwards valid data to claim extraction  
 
 **Post-Conditions:**  
-- Payload is either accepted or rejected  
+- Payload is accepted or rejected  
 
 **Alternate Flow:**  
 - Text may be truncated if too long  
@@ -322,32 +424,20 @@ FastAPI receives an analysis request
 - Can validate multiple requests concurrently  
 
 **Decision Support:**  
-- Frequency: Matches number of analysis requests  
 - Criticality: High  
 - Risk: Medium  
 
 **Constraints:**  
-- Should not add significant delay  
-- Error messages should be clear to the extension  
-
-## 4.5 Use Case 5 – Extract Claims from Article Text
-
-**Use Case ID:** `VER-MVP-005-ExtractClaims`  
-**Level:** Internal system process  
-
-**User Story:**  
-As the FastAPI backend, I want to extract individual claims so that the agent receives structured statements.
+- Must not add significant delay  
 
 ---
 
+## 4.7 Use Case 7 – Extract Claims from Article Text
+**Use Case ID:** `VER-MVP-007-ExtractClaims`  
+**Level:** Internal system process  
+
 **Actor:**  
 FastAPI Claim Extraction Module
-
-**Pre-Conditions:**  
-- Validated article text is available  
-
-**Trigger:**  
-Backend begins processing the text  
 
 **System Behavior:**  
 1. Splits text into candidate sentences  
@@ -356,360 +446,110 @@ Backend begins processing the text
 4. Assigns unique claim identifiers  
 
 **Post-Conditions:**  
-- Structured claim list prepared for packaging  
-
-**Alternate Flow:**  
-- System still proceeds with limited claims  
-
-**Extensions:**  
-- Advanced NLP or LLM extraction (future)  
-
-**Exceptions:**  
-- Zero valid claims extracted  
-
-**Concurrent Use:**  
-- Can extract claims from many articles in parallel  
-
-**Decision Support:**  
-- Criticality: High  
-- Risk: Medium  
-
-**Constraints:**  
-- Should complete in reasonable time  
-- Logic must be modular and replaceable
-
-## 4.6 Use Case 6 – Package Structured Claims for Agent
-
-**Use Case ID:** `VER-MVP-006-PackageClaimsForAgent`  
-**Level:** Internal system process  
-
-**User Story:**  
-As the backend, I want to package structured claims properly so that the Veritas Agent can process them consistently.
+- Structured claim list prepared  
 
 ---
 
+## 4.8 Use Case 8 – Package Structured Claims for Agent
+**Use Case ID:** `VER-MVP-008-PackageClaimsForAgent`  
+**Level:** Internal system process  
+
 **Actor:**  
 FastAPI Backend
-
-**Pre-Conditions:**  
-- Structured claims and article metadata exist  
-
-**Trigger:**  
-Claim extraction is completed  
 
 **System Behavior:**  
 1. Builds agent-ready payload  
-2. Includes claim IDs and normalized text  
+2. Includes claim IDs and metadata  
 3. Prepares payload for transmission  
 
-**Post-Conditions:**  
-- Payload is ready to send to the agent  
-
-**Alternate Flow:**  
-- Returns “no claims found” if empty  
-
-**Extensions:**  
-- Batch processing support (future)  
-
-**Exceptions:**  
-- Payload serialization failures  
-
-**Concurrent Use:**  
-- Multiple payloads prepared concurrently  
-
-**Decision Support:**  
-- Risk: Low to Medium  
-
-**Constraints:**  
-- Payload format consistency must be maintained 
-
-## 4.7 Use Case 7 – Send Claims to Veritas Agent
-
-**Use Case ID:** `VER-MVP-007-SendClaimsToAgent`  
-**Level:** Internal system process  
-
-**User Story:**  
-As the backend, I want to send the claim payload to the Veritas Agent so that claims can be evaluated.
-
 ---
+
+## 4.9 Use Case 9 – Send Claims to Veritas Agent
+**Use Case ID:** `VER-MVP-009-SendClaimsToAgent`  
+**Level:** Internal system process  
 
 **Actor:**  
 FastAPI Backend
 
-**Pre-Conditions:**  
-- Agent endpoint is reachable  
-- Payload is ready  
-
-**Trigger:**  
-Backend is ready to send the claim set  
-
 **System Behavior:**  
 1. Sends payload to the ADK agent  
-2. Applies any needed authentication  
-3. Waits for or handles timeout  
-
-**Post-Conditions:**  
-- Agent receives the claim set  
-
-**Alternate Flow:**  
-- Single retry on transient network error  
-
-**Extensions:**  
-- Asynchronous queued analysis  
-
-**Exceptions:**  
-- Agent unavailable, timeout, or auth failure  
-
-**Concurrent Use:**  
-- Many agent calls may be active  
-
-**Decision Support:**  
-- Criticality: High  
-- Risk: Medium to High  
-
-**Constraints:**  
-- Must enforce reasonable timeout
-
-## 4.8 Use Case 8 – Perform Evidence-Based Analysis
-
-**Use Case ID:** `VER-MVP-008-AgentEvidenceAnalysis`  
-**Level:** Internal system process  
-
-**User Story:**  
-As the Veritas Agent, I want to evaluate each claim so that I can return verdicts, scores, and explanations.
+2. Applies authentication if required  
+3. Handles timeouts or retries  
 
 ---
+
+## 4.10 Use Case 10 – Perform Evidence-Based Analysis
+**Use Case ID:** `VER-MVP-010-AgentEvidenceAnalysis`  
+**Level:** Internal system process  
 
 **Actor:**  
 Veritas Analysis Agent
 
-**Pre-Conditions:**  
-- Agent has received structured claims  
-
-**Trigger:**  
-Claim payload arrives at agent  
-
 **System Behavior:**  
-1. Performs research for each claim  
-2. Compares claim with gathered evidence  
-3. Assigns categorical verdict  
-4. Assigns truthfulness and bias scores  
-5. Generates explanation text  
-6. Produces structured output  
-
-**Post-Conditions:**  
-- Complete analysis set ready for backend  
-
-**Alternate Flow:**  
-- Returns “uncertain” when evidence is insufficient  
-
-**Extensions:**  
-- Include citations or references (future)  
-
-**Exceptions:**  
-- Internal agent errors  
-
-**Concurrent Use:**  
-- Agent handles multiple claim sets in parallel  
-
-**Decision Support:**  
-- Criticality: Very High  
-
-**Constraints:**  
-- Must operate fast enough for interactive use
-
-## 4.9 Use Case 9 – Receive Analysis Results from Agent
-
-**Use Case ID:** `VER-MVP-009-ReceiveAgentResults`  
-**Level:** Internal system process  
-
-**User Story:**  
-As the backend, I want to parse agent results so I can return them consistently to the extension.
+1. Evaluates each claim against gathered evidence  
+2. Assigns verdicts and scores  
+3. Generates explanations  
 
 ---
+
+## 4.11 Use Case 11 – Receive Analysis Results from Agent
+**Use Case ID:** `VER-MVP-011-ReceiveAgentResults`  
+**Level:** Internal system process  
 
 **Actor:**  
 FastAPI Backend
 
-**Pre-Conditions:**  
-- Agent has completed processing  
-
-**Trigger:**  
-Agent response arrives  
-
 **System Behavior:**  
-1. Parses response data  
-2. Validates required fields  
-3. Matches results to claim IDs  
-4. Handles missing or malformed entries  
-
-**Post-Conditions:**  
-- Validated result set ready for extension  
-
-**Alternate Flow:**  
-- Partial results still returned  
-
-**Extensions:**  
-- Logging of agent performance  
-
-**Exceptions:**  
-- Schema mismatches  
-
-**Concurrent Use:**  
-- Multiple responses handled concurrently  
-
-**Decision Support:**  
-- Risk: Medium  
-
-**Constraints:**  
-- Must maintain low latency
-
-## 4.10 Use Case 10 – Receive Backend Results in Extension**
-
-**Use Case ID:** `VER-MVP-010-ReceiveBackendResults`  
-**Level:** Internal system process  
-
-**User Story:**  
-As the Veritas extension, I want to receive backend results so that I can update the article with credibility indicators.
+1. Parses agent response  
+2. Validates result structure  
+3. Prepares results for extension delivery  
 
 ---
+
+## 4.12 Use Case 12 – Receive Backend Results in Extension
+**Use Case ID:** `VER-MVP-012-ReceiveBackendResults`  
+**Level:** Internal system process  
 
 **Actor:**  
 Veritas Browser Extension
 
-**Pre-Conditions:**  
-- Backend has returned a valid response  
-
-**Trigger:**  
-FastAPI response arrives  
-
 **System Behavior:**  
-1. Parses JSON results  
-2. Validates important fields  
-3. Stores results for annotation  
-4. Updates UI to ready state  
+1. Parses backend response  
+2. Stores results locally  
+3. Updates UI state  
 
-**Post-Conditions:**  
-- Extension holds structured analysis results  
+---
 
-**Alternate Flow:**  
-- Notify user if no claims found  
-
-**Extensions:**  
-- Overall summary panel (future)  
-
-**Exceptions:**  
-- Invalid JSON or missing fields  
-
-**Concurrent Use:**  
-- Multiple tabs update independently  
-
-**Decision Support:**  
-- Criticality: High for UX  
-
-**Constraints:**  
-- Results must attach to correct tab/session
-
-## 4.11 Use Case 11 – Annotate Article with Verdict Indicators**
-
-**Use Case ID:** `VER-MVP-011-AnnotateArticle`  
+## 4.13 Use Case 13 – Annotate Article with Verdict Indicators
+**Use Case ID:** `VER-MVP-013-AnnotateArticle`  
 **Level:** System-level end-to-end  
 
-**User Story:**  
-As a news reader, I want to see credibility indicators next to claims so I can quickly evaluate trustworthiness.
-
----
-
 **Actor:**  
-User (via Veritas Browser Extension)
-
-**Pre-Conditions:**  
-- Extension has valid analysis results  
-
-**Trigger:**  
-Extension begins rendering annotations  
+User via Veritas Browser Extension
 
 **System Behavior:**  
-1. Maps claims to article spans or paragraphs  
-2. Inserts visual badges next to claims  
-3. Applies colors based on verdict type  
-4. Attaches tooltips with scores and explanations  
-
-**Post-Conditions:**  
-- Article is annotated with credibility indicators  
-
-**Alternate Flow:**  
-- Annotate entire paragraphs when exact matches fail  
-
-**Extensions:**  
-- Filters to show/hide verdict types (future)  
-
-**Exceptions:**  
-- Dynamic DOM changes may break mapping  
-
-**Concurrent Use:**  
-- Users can annotate multiple articles simultaneously  
-
-**Decision Support:**  
-- Criticality: Very High  
-
-**Constraints:**  
-- Annotations must be readable and unobtrusive
-
-
-## 4.12 Use Case 12 – Manage User-Friendly Settings
-
-**Use Case ID:** `VER-MVP-012-ManageUserSettings`  
-**Level:** System-level UI interaction  
-
-**User Story:**  
-As a user, I want to configure Veritas settings through a clear and simple interface so that the tool behaves according to my preferences without requiring technical knowledge.
+1. Maps claims to article text  
+2. Inserts visual indicators  
+3. Displays verdict details on interaction  
 
 ---
+
+## 4.14 Use Case 14 – Manage User-Friendly Settings
+**Use Case ID:** `VER-MVP-014-ManageUserSettings`  
+**Level:** System-level UI interaction  
 
 **Actor:**  
 User
 
-**Pre-Conditions:**  
-- Veritas extension is installed and enabled  
-- Extension UI is accessible from the browser toolbar  
-
-**Trigger:**  
-User opens the settings panel from the Veritas extension interface.
-
 **System Behavior:**  
-1. Extension displays a dedicated settings view  
-2. Current user preferences are loaded from local storage  
-3. Settings are grouped into clear categories such as display, analysis behavior, and performance  
-4. Each option includes descriptive labels and helper text  
-5. User modifies one or more settings using toggles, sliders, or dropdowns  
-6. Changes are validated in real time  
-7. Updated preferences are saved automatically  
+1. Displays settings interface  
+2. Loads current preferences  
+3. Allows user to modify settings  
+4. Saves changes automatically  
 
 **Post-Conditions:**  
-- User preferences are persisted and applied to future analyses  
+- Preferences are applied to future analyses  
 
-**Alternate Flow:**  
-- User exits settings without making changes  
-
-**Extensions:**  
-- Preset profiles such as Minimal, Standard, and Detailed (future enhancement)  
-
-**Exceptions:**  
-- Local storage unavailable or write failure  
-
-**Concurrent Use:**  
-- Settings are scoped per browser profile  
-
-**Decision Support:**  
-- Frequency: Low to Medium  
-- Criticality: Medium  
-- Risk: Low  
-
-**Constraints:**  
-- Settings UI must be understandable without documentation  
-- No setting should require more than one interaction to enable or disable  
-- Changes must not require a browser refresh to take effect  
 
 
 # 5. Use Case Diagram
