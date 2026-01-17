@@ -6,10 +6,11 @@ from urllib.parse import urlparse
 app = FastAPI(title="Veritas API")
 
 # Define the inbound payload schema (what the extension sends)
-class AnalyzeRequest(BaseModel):  # Define a validated request body model
-    url: HttpUrl = Field(..., description="URL the text came from")  # Require a valid URL
-    title: str | None = Field(None, description="Optional article title")  # Optional title
-    text: str = Field(..., min_length=1, description="Extracted visible article text")  # Require non-empty text
+class AnalyzeRequest(BaseModel):  # Defines the request model
+    url: HttpUrl = Field(..., description="URL the text came from")  # Requires a valid URL
+    title: str | None = Field(None, description="Optional article title")  # Allows optional title
+    text: str = Field(..., min_length=1, description="Extracted visible article text")  # Requires non-empty extracted text
+    published_at: str | None = Field(None, description="Raw publication date string from the page")  # Accepts raw publication date
 
 # Response schema aligned to UI needs
 class AnalyzeResponse(BaseModel):
@@ -42,10 +43,12 @@ def analyze(request: AnalyzeRequest):
     parsed = urlparse(str(request.url))  # Convert HttpUrl to string
     domain = parsed.netloc  # Extract domain (e.g. www.nytimes.com)
     
+    raw_pub = request.published_at if request.published_at else "Unknown"  # Uses raw value exactly as received
+    
     return AnalyzeResponse(
         ok=True,
         source=domain,
-        publication_date="Placeholder",
+        publication_date=raw_pub,
         claims_detected=0,
         evidence_presence=0.3,
         language_certainty=0.4,

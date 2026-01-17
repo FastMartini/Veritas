@@ -75,7 +75,7 @@ function renderAnalyzeResponse(data) { // Defines renderer that maps API respons
   if (heroSection) heroSection.hidden = true; // Hides hero section after successful render
 } // Ends renderAnalyzeResponse function
 
-// Extract url, title, and visible article text from the active tab by executing code in the page
+// Extract url, title, visible article text, and raw publication date from the active tab
 async function extractFromActiveTab() { // Defines async function to extract content from the active tab
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true }); // Queries the active tab in the current window
   const tab = tabs[0]; // Selects the first tab returned by query
@@ -96,8 +96,18 @@ async function extractFromActiveTab() { // Defines async function to extract con
         ? paragraphs.join("\n\n") // Joins paragraphs with spacing if present
         : (root.innerText || "").trim(); // Falls back to root innerText if no paragraphs found
 
-      return { url, title, text }; // Returns extracted data to the extension
-    }, // Ends page-context function
+      const metaArticlePublished = document.querySelector('meta[property="article:published_time"]')?.getAttribute("content"); // Reads article published meta
+      const metaOgPublished = document.querySelector('meta[property="og:published_time"]')?.getAttribute("content"); // Reads og published meta
+      const metaItemPropPublished = document.querySelector('meta[itemprop="datePublished"]')?.getAttribute("content"); // Reads itemprop datePublished
+      const metaPubdate = document.querySelector('meta[name="pubdate"]')?.getAttribute("content"); // Reads pubdate meta
+      const metaPublishDate = document.querySelector('meta[name="publish-date"]')?.getAttribute("content"); // Reads publish-date meta
+      const metaDate = document.querySelector('meta[name="date"]')?.getAttribute("content"); // Reads date meta
+      const timeDatetime = document.querySelector("time[datetime]")?.getAttribute("datetime"); // Reads first time datetime attribute
+
+      const published_at = metaArticlePublished || metaOgPublished || metaItemPropPublished || metaPubdate || metaPublishDate || metaDate || timeDatetime || null; // Picks first available raw date
+
+      return { url, title, text, published_at }; // Returns extracted data including raw publication date
+    }, // Ends page function
   }); // Ends executeScript call
 
   return results[0].result; // Returns the first execution result payload
@@ -123,10 +133,9 @@ async function callAnalyzeApi(payload) { // Defines async function to call backe
 analyzeBtn.addEventListener("click", async () => { // Adds click handler for analyze button
   try { // Starts try block to handle runtime errors
     setStatus("Analyzing"); // Sets status to analyzing
-
     analyzeBtn.disabled = true; // Disables the button to prevent double clicks
 
-    const extracted = await extractFromActiveTab(); // Extracts url, title, and text from the active tab
+    const extracted = await extractFromActiveTab(); // Extracts url, title, text, and published_at from the active tab
     if (!extracted.text || extracted.text.length === 0) { // Checks if extracted text is empty
       setStatus("No text"); // Updates status to indicate no text was found
       analyzeBtn.disabled = false; // Re-enables the button
@@ -143,7 +152,7 @@ analyzeBtn.addEventListener("click", async () => { // Adds click handler for ana
     setStatus("Error"); // Sets status to error
     analyzeBtn.disabled = false; // Re-enables the button after error
   } // Ends try/catch
-}); // Ends analyze button handler
+}); // Ends analyze handler
 
 // Handle settings button click with placeholder behavior
 settingsBtn.addEventListener("click", () => { // Adds click handler for settings button
