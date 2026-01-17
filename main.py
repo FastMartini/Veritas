@@ -1,9 +1,21 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, HttpUrl, Field
 from urllib.parse import urlparse
+from datetime import datetime
+from dateutil import parser
 
 # Instantiate the FastAPI application
 app = FastAPI(title="Veritas API")
+
+def normalize_date(raw_date: str | None) -> str:
+    if not raw_date:
+        return "Unknown"
+    try:
+        parsed = parser.parse(raw_date)
+        return parsed.strftime("%Y-%m-%d")
+    except Exception:
+        return "Unknown"
+
 
 # Define the inbound payload schema (what the extension sends)
 class AnalyzeRequest(BaseModel):  # Defines the request model
@@ -31,6 +43,7 @@ class AnalyzeResponse(BaseModel):
     verdict: str = Field(..., description="Pending, True, False, Mixed, Misleading")
     summary: str = Field(..., description="Short verdict explanation")
 
+
 # Health check endpoint to verify server is running
 @app.get("/health")
 def health_check():
@@ -43,12 +56,12 @@ def analyze(request: AnalyzeRequest):
     parsed = urlparse(str(request.url))  # Convert HttpUrl to string
     domain = parsed.netloc  # Extract domain (e.g. www.nytimes.com)
     
-    raw_pub = request.published_at if request.published_at else "Unknown"  # Uses raw value exactly as received
+    publication = normalize_date(request.published_at)
     
     return AnalyzeResponse(
         ok=True,
         source=domain,
-        publication_date=raw_pub,
+        publication_date=publication,
         claims_detected=0,
         evidence_presence=0.3,
         language_certainty=0.4,
