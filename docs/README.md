@@ -535,7 +535,7 @@ User via Veritas Browser Extension
 ---
 
 ## 4.14 Use Case 14 – Manage User-Friendly Settings
-**Use Case ID:** `VER-MVP-014-ManageUserSettings`  
+**Use Case ID:** `VER-MVP-014-ManageUserSettings` 
 **Level:** System-level UI interaction  
 
 **Actor:**  
@@ -550,7 +550,73 @@ User
 **Post-Conditions:**  
 - Preferences are applied to future analyses  
 
+---
 
+## 4.15 Use Case 15 - Synchronize UI and Backend API
+**Use Case ID:** `VER-MVP-015-SyncUIBackendAPI` 
+**Level:** System-level backend integration
+
+**Actor:**
+System
+
+**System Behavior:**
+1. Updates API endpoints to align with UI backend requirements.
+2. Ensures request/response schemas match frontend expectations.
+3. Maintains compatilbility with existing analysis workflows.
+
+**Post-Conditions:**
+- UI and backend communicate consistently without data mismatches
+
+---
+
+## 4.16 Use Case 16 - Parse and Validate Article URLS
+**Use Case ID:** `VER-MVP-016-ParseArticleUrl` 
+**Level:** System-level data processing
+
+**Actor:**
+System
+
+**System Behavior:**
+1. Accepts a user-provided article URL
+2. Parses the URL to extract relevant componenets
+3. Validates the URL before analysis begins
+
+**Post-Conditions:**
+- A valid, structure URL is available for downstreams content extraction
+
+---
+
+## 4.17 Use Case 17 - Extract Raw Publication Date
+**Use Case ID:** `VER-MVP-017-ExtractRawPublicationDate` 
+**Level:** System-level data extraction
+
+**Actor:**
+System
+
+**System Behavior:**
+1. Scans the article page for publication date metadata
+2. Extracts the raw publication date value without modification
+3. Stores the unformatted date for internal processing
+
+**Post-Conditions:**
+- Raw publication date data is captured directly from the source
+
+---
+
+## 4.18 Use Case 18 - Format Publication Date
+**Use Case ID:** `VER-MVP-018-FormatPublicationDate` 
+**Level:** System-level data normalization
+
+**Actor:**
+System
+
+**System Behavior:**
+1. Receives the raw publication date value
+2. Converts the date to a standarized format (YYYY-MM-DD)
+3. Ensures consistency across UI display and stores results
+
+**Post-Conditions:**
+- Publication dates are uniformly formatted for clarity and comparison
 
 # 5. Use Case Diagram
 
