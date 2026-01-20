@@ -184,60 +184,44 @@ User clicks the Veritas extension icon.
 
 ---
 
-## 4.2 Use Case 2 – Capture Article Source
-**Use Case ID:** `VER-MVP-002-CaptureArticleSource`  
-**Level:** Internal system process  
+## 4.2 Use Case 2 - Parse and Validate Article URLS
+**Use Case ID:** `VER-MVP-002-ParseArticleUrl` 
 
-**User Story:**  
-As the Veritas extension, I want to identify the article’s publisher or source so that credibility analysis can incorporate source context.
+**Level:** System-level data processing
+
+**Actor:**
+System
+
+**System Behavior:**
+1. Accepts a user-provided article URL
+2. Parses the URL to extract relevant componenets
+3. Validates the URL before analysis begins
+
+**Post-Conditions:**
+- A valid, structure URL is available for downstreams content extraction
+  
+---
+
+## 4.3 Use Case 3 - Extract Raw Publication Date
+**Use Case ID:** `VER-MVP-003-ExtractRawPublicationDate`
+
+**Level:** System-level data extraction
+
+**Actor:**
+System
+
+**System Behavior:**
+1. Scans the article page for publication date metadata
+2. Extracts the raw publication date value without modification
+3. Stores the unformatted date for internal processing
+
+**Post-Conditions:**
+- Raw publication date data is captured directly from the source
 
 ---
 
-**Actor:**  
-Veritas Browser Extension
-
-**Pre-Conditions:**  
-- Use Case 1 has started  
-- Content script has access to the DOM  
-
-**Trigger:**  
-Metadata capture phase begins  
-
-**System Behavior:**  
-1. Inspects page metadata for publisher or site name  
-2. Extracts source from structured metadata when available  
-3. Falls back to domain-based source identification  
-4. Normalizes the source name into a consistent format  
-5. Attaches source to article metadata  
-
-**Post-Conditions:**  
-- Article source is captured or marked as unknown  
-
-**Alternate Flow:**  
-- Source inferred solely from domain name  
-
-**Extensions:**  
-- Source reputation profiling (future)  
-
-**Exceptions:**  
-- Conflicting or ambiguous source metadata  
-
-**Concurrent Use:**  
-- Can execute across multiple tabs  
-
-**Decision Support:**  
-- Frequency: Once per analysis  
-- Criticality: Medium to High  
-- Risk: Medium  
-
-**Constraints:**  
-- Must avoid false attribution  
-- Must not significantly delay ingestion  
-
----
-
-## 4.3 Use Case 3 – Capture Article Publication Date
-**Use Case ID:** `VER-MVP-003-CapturePublicationDate`  
+## 4.4 Use Case 4 – Capture Article Publication Date
+**Use Case ID:** `VER-MVP-004-CapturePublicationDate`  
 **Level:** Internal system process  
 
 **User Story:**  
@@ -288,8 +272,8 @@ Metadata capture phase begins
 
 ---
 
-## 4.4 Use Case 4 – Capture Article Text
-**Use Case ID:** `VER-MVP-004-CaptureArticleText`  
+## 4.5 Use Case 5 – Capture Article Text
+**Use Case ID:** `VER-MVP-005-CaptureArticleText`  
 **Level:** Internal system process  
 
 **User Story:**  
@@ -340,8 +324,8 @@ Analysis is requested by the user
 
 ---
 
-## 4.5 Use Case 5 – Send Article Data to Backend
-**Use Case ID:** `VER-MVP-005-SendArticleDataToBackend`  
+## 4.6 Use Case 6 – Send Article Data to Backend
+**Use Case ID:** `VER-MVP-006-SendArticleDataToBackend`  
 **Level:** Internal system process  
 
 **User Story:**  
@@ -389,8 +373,8 @@ Extension initiates the analysis request
 
 ---
 
-## 4.6 Use Case 6 – Validate Incoming Article Data
-**Use Case ID:** `VER-MVP-006-ValidateArticleData`  
+## 4.7 Use Case 7 – Validate Incoming Article Data
+**Use Case ID:** `VER-MVP-007-ValidateArticleData`  
 **Level:** Internal system process  
 
 **Actor:**  
@@ -432,8 +416,8 @@ FastAPI receives an analysis request
 
 ---
 
-## 4.7 Use Case 7 – Extract Claims from Article Text
-**Use Case ID:** `VER-MVP-007-ExtractClaims`  
+## 4.8 Use Case 8 – Extract Claims from Article Text
+**Use Case ID:** `VER-MVP-008-ExtractClaims`  
 **Level:** Internal system process  
 
 **Actor:**  
@@ -450,8 +434,8 @@ FastAPI Claim Extraction Module
 
 ---
 
-## 4.8 Use Case 8 – Package Structured Claims for Agent
-**Use Case ID:** `VER-MVP-008-PackageClaimsForAgent`  
+## 4.9 Use Case 9 – Package Structured Claims for Agent
+**Use Case ID:** `VER-MVP-009-PackageClaimsForAgent`  
 **Level:** Internal system process  
 
 **Actor:**  
@@ -464,8 +448,8 @@ FastAPI Backend
 
 ---
 
-## 4.9 Use Case 9 – Send Claims to Veritas Agent
-**Use Case ID:** `VER-MVP-009-SendClaimsToAgent`  
+## 4.10 Use Case 10 – Send Claims to Veritas Agent
+**Use Case ID:** `VER-MVP-010-SendClaimsToAgent`  
 **Level:** Internal system process  
 
 **Actor:**  
@@ -478,8 +462,8 @@ FastAPI Backend
 
 ---
 
-## 4.10 Use Case 10 – Perform Evidence-Based Analysis
-**Use Case ID:** `VER-MVP-010-AgentEvidenceAnalysis`  
+## 4.11 Use Case 11 – Perform Evidence-Based Analysis
+**Use Case ID:** `VER-MVP-011-AgentEvidenceAnalysis`  
 **Level:** Internal system process  
 
 **Actor:**  
@@ -492,8 +476,8 @@ Veritas Analysis Agent
 
 ---
 
-## 4.11 Use Case 11 – Receive Analysis Results from Agent
-**Use Case ID:** `VER-MVP-011-ReceiveAgentResults`  
+## 4.12 Use Case 12 – Receive Analysis Results from Agent
+**Use Case ID:** `VER-MVP-012-ReceiveAgentResults`  
 **Level:** Internal system process  
 
 **Actor:**  
@@ -506,8 +490,8 @@ FastAPI Backend
 
 ---
 
-## 4.12 Use Case 12 – Receive Backend Results in Extension
-**Use Case ID:** `VER-MVP-012-ReceiveBackendResults`  
+## 4.13 Use Case 13 – Receive Backend Results in Extension
+**Use Case ID:** `VER-MVP-013-ReceiveBackendResults`  
 **Level:** Internal system process  
 
 **Actor:**  
@@ -520,8 +504,8 @@ Veritas Browser Extension
 
 ---
 
-## 4.13 Use Case 13 – Annotate Article with Verdict Indicators
-**Use Case ID:** `VER-MVP-013-AnnotateArticle`  
+## 4.14 Use Case 14 – Annotate Article with Verdict Indicators
+**Use Case ID:** `VER-MVP-014-AnnotateArticle`  
 **Level:** System-level end-to-end  
 
 **Actor:**  
@@ -534,8 +518,8 @@ User via Veritas Browser Extension
 
 ---
 
-## 4.14 Use Case 14 – Manage User-Friendly Settings
-**Use Case ID:** `VER-MVP-014-ManageUserSettings`
+## 4.15 Use Case 15 – Manage User-Friendly Settings
+**Use Case ID:** `VER-MVP-015-ManageUserSettings`
 
 **Level:** System-level UI interaction  
 
@@ -553,8 +537,8 @@ User
 
 ---
 
-## 4.15 Use Case 15 - Synchronize UI and Backend API
-**Use Case ID:** `VER-MVP-015-SyncUIBackendAPI` 
+## 4.16 Use Case 16 - Synchronize UI and Backend API
+**Use Case ID:** `VER-MVP-016-SyncUIBackendAPI` 
 
 **Level:** System-level backend integration
 
@@ -571,44 +555,8 @@ System
 
 ---
 
-## 4.16 Use Case 16 - Parse and Validate Article URLS
-**Use Case ID:** `VER-MVP-016-ParseArticleUrl` 
-
-**Level:** System-level data processing
-
-**Actor:**
-System
-
-**System Behavior:**
-1. Accepts a user-provided article URL
-2. Parses the URL to extract relevant componenets
-3. Validates the URL before analysis begins
-
-**Post-Conditions:**
-- A valid, structure URL is available for downstreams content extraction
-
----
-
-## 4.17 Use Case 17 - Extract Raw Publication Date
-**Use Case ID:** `VER-MVP-017-ExtractRawPublicationDate`
-
-**Level:** System-level data extraction
-
-**Actor:**
-System
-
-**System Behavior:**
-1. Scans the article page for publication date metadata
-2. Extracts the raw publication date value without modification
-3. Stores the unformatted date for internal processing
-
-**Post-Conditions:**
-- Raw publication date data is captured directly from the source
-
----
-
-## 4.18 Use Case 18 - Format Publication Date
-**Use Case ID:** `VER-MVP-018-FormatPublicationDate` 
+## 4.17 Use Case 17 - Format Publication Date
+**Use Case ID:** `VER-MVP-017-FormatPublicationDate` 
 
 **Level:** System-level data normalization
 
