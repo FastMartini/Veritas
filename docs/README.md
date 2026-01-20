@@ -535,7 +535,8 @@ User via Veritas Browser Extension
 ---
 
 ## 4.14 Use Case 14 – Manage User-Friendly Settings
-**Use Case ID:** `VER-MVP-014-ManageUserSettings` 
+**Use Case ID:** `VER-MVP-014-ManageUserSettings`
+
 **Level:** System-level UI interaction  
 
 **Actor:**  
@@ -554,6 +555,7 @@ User
 
 ## 4.15 Use Case 15 - Synchronize UI and Backend API
 **Use Case ID:** `VER-MVP-015-SyncUIBackendAPI` 
+
 **Level:** System-level backend integration
 
 **Actor:**
@@ -571,6 +573,7 @@ System
 
 ## 4.16 Use Case 16 - Parse and Validate Article URLS
 **Use Case ID:** `VER-MVP-016-ParseArticleUrl` 
+
 **Level:** System-level data processing
 
 **Actor:**
@@ -587,7 +590,8 @@ System
 ---
 
 ## 4.17 Use Case 17 - Extract Raw Publication Date
-**Use Case ID:** `VER-MVP-017-ExtractRawPublicationDate` 
+**Use Case ID:** `VER-MVP-017-ExtractRawPublicationDate`
+
 **Level:** System-level data extraction
 
 **Actor:**
@@ -605,6 +609,7 @@ System
 
 ## 4.18 Use Case 18 - Format Publication Date
 **Use Case ID:** `VER-MVP-018-FormatPublicationDate` 
+
 **Level:** System-level data normalization
 
 **Actor:**
