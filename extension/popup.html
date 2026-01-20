@@ -1,69 +1,104 @@
-<!DOCTYPE html> <!-- Declares HTML5 document. -->
-<html lang="en"> <!-- Sets document language. -->
-  <head> <!-- Head section for metadata and links. -->
-    <meta charset="UTF-8" /> <!-- Sets character encoding. -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Responsive scaling. -->
-    <title>Veritas</title> <!-- Popup title. -->
-    <link rel="stylesheet" href="popup.css" /> <!-- Loads popup styles. -->
-  </head> <!-- Ends head. -->
-  <body> <!-- Popup body container. -->
-    <header class="top"> <!-- Top header row. -->
-      <div class="brand"> <!-- Brand grouping container. -->
-        <img src="icons/48.png" alt="Veritas logo" class="logoImg" /> <!-- logo placeholder. -->
-        <h1 class="title">Veritas</h1> <!-- Product name. -->
-      </div> <!-- Ends brand grouping. -->
-      <span id="statusPill" class="pill">Idle</span> <!-- Status pill placeholder. -->
-    </header> <!-- Ends header. -->
+<!DOCTYPE html> <!-- Declares an HTML5 document -->
+<html lang="en"> <!-- Sets the document language to English -->
+  <head> <!-- Head section for metadata -->
+    <meta charset="UTF-8" /> <!-- Defines UTF-8 character encoding -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Enables responsive scaling -->
+    <title>Veritas</title> <!-- Popup window title -->
+    <link rel="stylesheet" href="popup.css" /> <!-- Links popup stylesheet -->
+  </head> <!-- Ends head section -->
 
-    <main class="card"> <!-- Main card container. -->
-      <div class="hero"> <!-- Empty state hero section. -->
-        <div class="heroTitle">No analysis yet</div> <!-- Primary empty state title. -->
-        <div class="heroSub">Open an article, then run analysis when enabled.</div> <!-- Empty state explanation. -->
-      </div> <!-- Ends hero. -->
+  <body> <!-- Begins popup body -->
 
-      <button id="analyzeBtn" class="primary" disabled>Analyze Page</button> <!-- Disabled CTA for setup stage. -->
+    <header class="top"> <!-- Top header container -->
+      <div class="brand"> <!-- Brand grouping -->
+        <img src="icons/48.png" alt="Veritas logo" class="logoImg" /> <!-- Logo image -->
+        <h1 class="title">Veritas</h1> <!-- App title -->
+      </div> <!-- Ends brand group -->
+      <span id="statusPill" class="pill">Idle</span> <!-- Status pill controlled by JS -->
+    </header> <!-- Ends header -->
 
-      <section class="section"> <!-- Section wrapper. -->
-        <button class="sectionHdr" type="button" aria-expanded="false" data-target="overviewBody"> <!-- Section header button. -->
-          <span>Article Overview</span> <!-- Section label. -->
-          <span class="chev" aria-hidden="true">▾</span> <!-- Chevron indicator. -->
-        </button> <!-- Ends section header. -->
-        <div id="overviewBody" class="sectionBody" hidden> <!-- Collapsible body (hidden by default). -->
-          <div class="row"><span class="k">Source</span><span class="v">Placeholder</span></div> <!-- Placeholder row. -->
-          <div class="row"><span class="k">Publication date</span><span class="v">Placeholder</span></div> <!-- Placeholder row. -->
-          <div class="row"><span class="k">Claims detected</span><span class="v">Placeholder</span></div> <!-- Placeholder row. -->
-        </div> <!-- Ends section body. -->
-      </section> <!-- Ends section. -->
+    <main class="card"> <!-- Main card container -->
 
-      <section class="section"> <!-- Section wrapper. -->
-        <button class="sectionHdr" type="button" aria-expanded="false" data-target="signalsBody"> <!-- Section header button. -->
-          <span>Credibility Signals</span> <!-- Section label. -->
-          <span class="chev" aria-hidden="true">▾</span> <!-- Chevron indicator. -->
-        </button> <!-- Ends section header. -->
-        <div id="signalsBody" class="sectionBody" hidden> <!-- Collapsible body (hidden by default). -->
-          <div class="meterRow"><span class="k">Evidence presence</span><span class="meter" aria-hidden="true"></span></div> <!-- Placeholder meter. -->
-          <div class="meterRow"><span class="k">Language certainty</span><span class="meter" aria-hidden="true"></span></div> <!-- Placeholder meter. -->
-          <div class="meterRow"><span class="k">Source reputation</span><span class="meter" aria-hidden="true"></span></div> <!-- Placeholder meter. -->
-        </div> <!-- Ends section body. -->
-      </section> <!-- Ends section. -->
+      <div class="hero" id="heroSection"> <!-- Empty state hero section -->
+        <div class="heroTitle">No analysis yet</div> <!-- Empty state title -->
+        <div class="heroSub">Open an article, then run analysis.</div> <!-- Empty state subtitle -->
+      </div> <!-- Ends hero section -->
 
-      <section class="section"> <!-- Section wrapper. -->
-        <button class="sectionHdr" type="button" aria-expanded="false" data-target="verdictBody"> <!-- Section header button. -->
-          <span>Verdict Summary</span> <!-- Section label. -->
-          <span class="chev" aria-hidden="true">▾</span> <!-- Chevron indicator. -->
-        </button> <!-- Ends section header. -->
-        <div id="verdictBody" class="sectionBody" hidden> <!-- Collapsible body (hidden by default). -->
-          <div class="verdict">Pending</div> <!-- Placeholder verdict badge. -->
-          <div class="hint">Enable analysis wiring later to populate this.</div> <!-- Guidance text. -->
-        </div> <!-- Ends section body. -->
-      </section> <!-- Ends section. -->
-    </main> <!-- Ends main. -->
+      <button id="analyzeBtn" class="primary">Analyze Page</button> <!-- Analyze button -->
 
-    <footer class="foot"> <!-- Footer container. -->
-      <button id="settingsBtn" class="linkBtn" type="button">Settings</button> <!-- Settings placeholder button. -->
-      <span class="ver">v1.0.0</span> <!-- Version label. -->
-    </footer> <!-- Ends footer. -->
+      <section class="section"> <!-- Article overview section -->
+        <button class="sectionHdr" type="button" aria-expanded="false" data-target="overviewBody"> <!-- Header toggle -->
+          <span>Article Overview</span> <!-- Section label -->
+          <span class="chev" aria-hidden="true">▾</span> <!-- Chevron indicator -->
+        </button> <!-- Ends section header -->
 
-    <script src="popup.js"></script> <!-- Loads popup logic. -->
-  </body> <!-- Ends body. -->
-</html> <!-- Ends document. -->
+        <div id="overviewBody" class="sectionBody" hidden> <!-- Collapsible body -->
+          <div class="row"> <!-- Source row -->
+            <span class="k">Source</span> <!-- Label -->
+            <span id="sourceValue" class="v">—</span> <!-- Source value -->
+          </div>
+          <div class="row"> <!-- Publication date row -->
+            <span class="k">Publication date</span> <!-- Label -->
+            <span id="pubDateValue" class="v">—</span> <!-- Publication date value -->
+          </div>
+          <div class="row"> <!-- Claims detected row -->
+            <span class="k">Claims detected</span> <!-- Label -->
+            <span id="claimsValue" class="v">0</span> <!-- Claims count -->
+          </div>
+        </div> <!-- Ends overview body -->
+      </section> <!-- Ends article overview section -->
+
+      <section class="section"> <!-- Credibility signals section -->
+        <button class="sectionHdr" type="button" aria-expanded="false" data-target="signalsBody"> <!-- Header toggle -->
+          <span>Credibility Signals</span> <!-- Section label -->
+          <span class="chev" aria-hidden="true">▾</span> <!-- Chevron indicator -->
+        </button> <!-- Ends section header -->
+
+        <div id="signalsBody" class="sectionBody" hidden> <!-- Collapsible body -->
+
+          <div class="meterRow"> <!-- Evidence presence row -->
+            <span class="k">Evidence presence</span> <!-- Label -->
+            <span class="meter"> <!-- Meter track -->
+              <span id="evidenceBar" class="meterFill"></span> <!-- Fill controlled by JS -->
+            </span>
+          </div>
+
+          <div class="meterRow"> <!-- Language certainty row -->
+            <span class="k">Language certainty</span> <!-- Label -->
+            <span class="meter"> <!-- Meter track -->
+              <span id="languageBar" class="meterFill"></span> <!-- Fill controlled by JS -->
+            </span>
+          </div>
+
+          <div class="meterRow"> <!-- Source reputation row -->
+            <span class="k">Source reputation</span> <!-- Label -->
+            <span class="meter"> <!-- Meter track -->
+              <span id="reputationBar" class="meterFill"></span> <!-- Fill controlled by JS -->
+            </span>
+          </div>
+
+        </div> <!-- Ends signals body -->
+      </section> <!-- Ends credibility signals section -->
+
+      <section class="section"> <!-- Verdict summary section -->
+        <button class="sectionHdr" type="button" aria-expanded="false" data-target="verdictBody"> <!-- Header toggle -->
+          <span>Verdict Summary</span> <!-- Section label -->
+          <span class="chev" aria-hidden="true">▾</span> <!-- Chevron indicator -->
+        </button> <!-- Ends section header -->
+
+        <div id="verdictBody" class="sectionBody" hidden> <!-- Collapsible body -->
+          <div id="verdictPill" class="verdict">Pending</div> <!-- Verdict label -->
+          <div id="verdictSummary" class="hint">Analysis not yet run.</div> <!-- Verdict explanation -->
+        </div> <!-- Ends verdict body -->
+      </section> <!-- Ends verdict section -->
+
+    </main> <!-- Ends main container -->
+
+    <footer class="foot"> <!-- Footer container -->
+      <button id="settingsBtn" class="linkBtn" type="button">Settings</button> <!-- Settings button -->
+      <span class="ver">v1.0.0</span> <!-- Version label -->
+    </footer> <!-- Ends footer -->
+
+    <script src="popup.js"></script> <!-- Loads popup JavaScript -->
+  </body> <!-- Ends body -->
+</html> <!-- Ends document -->
