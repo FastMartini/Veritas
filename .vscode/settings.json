@@ -5,6 +5,7 @@
         "crsreports",
         "dataframe",
         "Datetime",
+        "dateutil",
         "dedupe",
         "dotenv",
         "ents",
