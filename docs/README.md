@@ -202,26 +202,8 @@ System
   
 ---
 
-## 4.3 Use Case 3 - Extract Raw Publication Date
-**Use Case ID:** `VER-MVP-003-ExtractRawPublicationDate`
-
-**Level:** System-level data extraction
-
-**Actor:**
-System
-
-**System Behavior:**
-1. Scans the article page for publication date metadata
-2. Extracts the raw publication date value without modification
-3. Stores the unformatted date for internal processing
-
-**Post-Conditions:**
-- Raw publication date data is captured directly from the source
-
----
-
-## 4.4 Use Case 4 – Capture Article Publication Date
-**Use Case ID:** `VER-MVP-004-CapturePublicationDate`  
+## 4.3 Use Case 3 – Capture Article Publication Date
+**Use Case ID:** `VER-MVP-003-CapturePublicationDate`  
 **Level:** Internal system process  
 
 **User Story:**  
@@ -272,6 +254,24 @@ Metadata capture phase begins
 
 ---
 
+## 4.4 Use Case 4 - Format Publication Date
+**Use Case ID:** `VER-MVP-004-FormatPublicationDate` 
+
+**Level:** System-level data normalization
+
+**Actor:**
+System
+
+**System Behavior:**
+1. Receives the raw publication date value
+2. Converts the date to a standarized format (YYYY-MM-DD)
+3. Ensures consistency across UI display and stores results
+
+**Post-Conditions:**
+- Publication dates are uniformly formatted for clarity and comparison
+
+--- 
+
 ## 4.5 Use Case 5 – Capture Article Text
 **Use Case ID:** `VER-MVP-005-CaptureArticleText`  
 **Level:** Internal system process  
@@ -279,7 +279,7 @@ Metadata capture phase begins
 **User Story:**  
 As the Veritas extension, I want to capture the visible article text and URL so that relevant content can be analyzed.
 
----
+--- 
 
 **Actor:**  
 Veritas Browser Extension
@@ -554,22 +554,6 @@ System
 - UI and backend communicate consistently without data mismatches
 
 ---
-
-## 4.17 Use Case 17 - Format Publication Date
-**Use Case ID:** `VER-MVP-017-FormatPublicationDate` 
-
-**Level:** System-level data normalization
-
-**Actor:**
-System
-
-**System Behavior:**
-1. Receives the raw publication date value
-2. Converts the date to a standarized format (YYYY-MM-DD)
-3. Ensures consistency across UI display and stores results
-
-**Post-Conditions:**
-- Publication dates are uniformly formatted for clarity and comparison
 
 # 5. Use Case Diagram
 
