@@ -27,6 +27,10 @@ const verdictSummary = document.getElementById("verdictSummary"); // Stores the 
 // Grab the hero section so it can be hidden after the first analysis
 const heroSection = document.getElementById("heroSection"); // Stores the hero section DOM node
 
+const extractStats = document.getElementById("extractStats"); // Comment: stores extraction stats element
+const extractPreview = document.getElementById("extractPreview"); // Comment: stores extraction preview textarea
+
+
 // Helper to set the status pill text
 function setStatus(text) { // Defines a helper function to update the status pill
   statusPill.textContent = text; // Sets the pill text content to the provided status
@@ -136,6 +140,10 @@ analyzeBtn.addEventListener("click", async () => { // Adds click handler for ana
     analyzeBtn.disabled = true; // Disables the button to prevent double clicks
 
     const extracted = await extractFromActiveTab(); // Extracts url, title, text, and published_at from the active tab
+
+    if (extractStats) extractStats.textContent = `Paragraphs: ${(extracted.text.match(/\n\n/g) || []).length + 1} | Characters: ${extracted.text.length}`; // Comment: shows quick stats for what was extracted
+    if (extractPreview) extractPreview.value = extracted.text || ""; // Comment: displays extracted text in the debug textarea
+
     if (!extracted.text || extracted.text.length === 0) { // Checks if extracted text is empty
       setStatus("No text"); // Updates status to indicate no text was found
       analyzeBtn.disabled = false; // Re-enables the button

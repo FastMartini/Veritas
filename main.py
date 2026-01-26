@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, HttpUrl, Field
 from urllib.parse import urlparse
-from datetime import datetime
 from dateutil import parser
 
 # Instantiate the FastAPI application

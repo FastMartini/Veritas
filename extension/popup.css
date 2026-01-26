@@ -174,4 +174,30 @@
     font-size: 12px; /* Sets size. */
     color: var(--muted); /* Muted color. */
   } /* Ends version label. */
+
+  #extractDebug { /* Comment: shows the debug container area */
+    margin-top: 10px; /* Comment: spacing under Analyze button */
+    border: 1px solid var(--line); /* Comment: visible border so you can see the box */
+    border-radius: 12px; /* Comment: matches your UI rounding */
+    padding: 8px; /* Comment: inner spacing */
+  } /* Comment: ends extractDebug styles */
+  
+  #extractStats { /* Comment: shows small stats line above the preview */
+    font-size: 12px; /* Comment: matches your small UI text */
+    color: var(--muted); /* Comment: uses muted color */
+    margin-bottom: 6px; /* Comment: spacing before textarea */
+  } /* Comment: ends extractStats styles */
+  
+  #extractPreview { /* Comment: displays extracted text preview */
+    width: 100%; /* Comment: fills container width */
+    height: 140px; /* Comment: fixed height so it is visible */
+    resize: none; /* Comment: prevents resizing */
+    border: 1px solid var(--line); /* Comment: gives textarea a border */
+    border-radius: 10px; /* Comment: rounds corners */
+    padding: 8px; /* Comment: inner spacing */
+    font-size: 12px; /* Comment: readable size */
+    color: var(--text); /* Comment: uses main text color */
+    background: #fff; /* Comment: white background */
+  } /* Comment: ends extractPreview styles */
+  
   
