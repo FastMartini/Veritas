@@ -123,21 +123,6 @@
     font-size: 12px; /* Sets size. */
   } /* Ends value styles. */
   
-  .meterRow { /* Styles meter rows. */
-    display: flex; /* Flex layout. */
-    align-items: center; /* Aligns vertically. */
-    justify-content: space-between; /* Spaces label and meter. */
-    padding: 8px 0; /* Adds spacing. */
-  } /* Ends meterRow styles. */
-  
-  .meter { /* Styles placeholder meters. */
-    width: 140px; /* Sets meter width. */
-    height: 8px; /* Sets meter height. */
-    border-radius: 999px; /* Rounds ends. */
-    background: linear-gradient(90deg, var(--accent) 25%, #f0f0f0 25%); /* Shows accent segment then neutral. */
-    border: 1px solid var(--line); /* Adds border. */
-  } /* Ends meter styles. */
-  
   .verdict { /* Styles verdict badge. */
     display: inline-block; /* Makes it badge-like. */
     padding: 6px 10px; /* Adds padding. */

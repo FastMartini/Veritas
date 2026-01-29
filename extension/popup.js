@@ -15,11 +15,6 @@ const sourceValue = document.getElementById("sourceValue"); // Stores the source
 const pubDateValue = document.getElementById("pubDateValue"); // Stores the publication date value DOM node
 const claimsValue = document.getElementById("claimsValue"); // Stores the claims detected DOM node
 
-// Grab Credibility Signals meter fill elements to set width based on backend scores
-const evidenceBar = document.getElementById("evidenceBar"); // Stores the evidence presence fill element
-const languageBar = document.getElementById("languageBar"); // Stores the language certainty fill element
-const reputationBar = document.getElementById("reputationBar"); // Stores the source reputation fill element
-
 // Grab Verdict Summary fields to populate from backend response
 const verdictPill = document.getElementById("verdictPill"); // Stores the verdict label DOM node
 const verdictSummary = document.getElementById("verdictSummary"); // Stores the verdict summary DOM node
