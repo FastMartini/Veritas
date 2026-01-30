@@ -2,6 +2,11 @@ from fastapi import FastAPI
 from pydantic import BaseModel, HttpUrl, Field
 from urllib.parse import urlparse
 from dateutil import parser
+import re  # Comment: used for light text normalization
+import spacy  # Comment: used for sentence splitting and grammar parsing
+
+ # Comment: loads spaCy model once at startup
+nlp = spacy.load("en_core_web_sm")
 
 # Instantiate the FastAPI application
 app = FastAPI(title="Veritas API")
