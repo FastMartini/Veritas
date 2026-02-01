@@ -24,9 +24,11 @@ def normalize_date(raw_date: str | None) -> str:
     except Exception:
         return "Unknown"
 
-def normalize_text(text: str) -> str:  # Comment: normalizes whitespace for stable NLP parsing
-    cleaned = re.sub(r"\s+", " ", (text or "")).strip()  # Comment: collapses whitespace and trims ends
-    return cleaned  # Comment: returns cleaned text
+def normalize_text(text: str) -> str:  # Comment: normalizes spacing while preserving newlines for line-based filters
+    s = (text or "").replace("\r\n", "\n").replace("\r", "\n")  # Comment: normalizes line endings
+    s = re.sub(r"[ \t]+", " ", s)  # Comment: collapses spaces/tabs but keeps newlines
+    s = re.sub(r"\n{3,}", "\n\n", s)  # Comment: prevents massive vertical gaps
+    return s.strip()  # Comment: trims ends
 
 def strip_boilerplate_lines(text: str) -> str:  # Comment: removes common non-article lines that pollute extraction
     lines = (text or "").splitlines()  # Comment: splits text into individual lines
@@ -132,7 +134,7 @@ class AnalyzeRequest(BaseModel):  # Defines the request model
     title: str | None = Field(None, description="Optional article title")  # Allows optional title
     text: str = Field(..., min_length=1, description="Extracted visible article text")  # Requires non-empty extracted text
     published_at: str | None = Field(None, description="Raw publication date string from the page")  # Accepts raw publication date
-    max_claims: int = Field(8, ge=1, le=25, description="Max claims to extract")  # Comment: caps claims returned
+    max_claims: int = Field(12, ge=1, le=50, description="Max claims to extract")  # Comment: caps claims returned
 
 
 # Response schema aligned to UI needs
