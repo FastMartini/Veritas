@@ -45,28 +45,14 @@ sectionHeaders.forEach((btn) => { // Iterates over all section header buttons
   btn.addEventListener("click", () => toggleSection(btn)); // Attaches click listener to toggle that section
 }); // Ends section header binding loop
 
-// Clamp a value into the 0 to 1 range for progress bars
-function clamp01(value) { // Defines helper to clamp values to 0..1
-  const num = Number(value); // Converts the provided value to a number
-  if (Number.isNaN(num)) return 0; // Returns 0 if the value cannot be parsed
-  return Math.max(0, Math.min(1, num)); // Returns the number clamped between 0 and 1
-} // Ends clamp01 helper
-
-// Set a bar fill element width based on a 0 to 1 value
-function setBar(barEl, score01) { // Defines helper to set bar width
-  const clamped = clamp01(score01); // Clamps score value between 0 and 1
-  barEl.style.width = `${clamped * 100}%`; // Sets bar width as a percentage string
-} // Ends setBar helper
-
 // Render the backend response into the popup UI
 function renderAnalyzeResponse(data) { // Defines renderer that maps API response to DOM
+
+  console.log("Analyze response:", data); // Comment: confirms backend data is arriving
+
   sourceValue.textContent = data.source ?? "Unknown"; // Updates source text
   pubDateValue.textContent = data.publication_date ?? "Unknown"; // Updates publication date text
   claimsValue.textContent = String(data.claims_detected ?? 0); // Updates claims count text
-
-  setBar(evidenceBar, data.evidence_presence); // Updates evidence bar width
-  setBar(languageBar, data.language_certainty); // Updates language bar width
-  setBar(reputationBar, data.source_reputation); // Updates reputation bar width
 
   verdictPill.textContent = data.verdict ?? "Pending"; // Updates verdict label
   verdictSummary.textContent = data.summary ?? ""; // Updates verdict summary text
