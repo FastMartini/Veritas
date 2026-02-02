@@ -123,21 +123,6 @@
     font-size: 12px; /* Sets size. */
   } /* Ends value styles. */
   
-  .meterRow { /* Styles meter rows. */
-    display: flex; /* Flex layout. */
-    align-items: center; /* Aligns vertically. */
-    justify-content: space-between; /* Spaces label and meter. */
-    padding: 8px 0; /* Adds spacing. */
-  } /* Ends meterRow styles. */
-  
-  .meter { /* Styles placeholder meters. */
-    width: 140px; /* Sets meter width. */
-    height: 8px; /* Sets meter height. */
-    border-radius: 999px; /* Rounds ends. */
-    background: linear-gradient(90deg, var(--accent) 25%, #f0f0f0 25%); /* Shows accent segment then neutral. */
-    border: 1px solid var(--line); /* Adds border. */
-  } /* Ends meter styles. */
-  
   .verdict { /* Styles verdict badge. */
     display: inline-block; /* Makes it badge-like. */
     padding: 6px 10px; /* Adds padding. */
@@ -147,6 +132,11 @@
     font-weight: 650; /* Emphasizes verdict. */
     font-size: 12px; /* Sets size. */
   } /* Ends verdict styles. */
+
+  #claimsBody { max-height: 160px; overflow: auto; } /* Comment: keeps claims list scrollable */
+  #claimsList { margin: 0; padding-left: 18px; } /* Comment: readable list spacing */
+  #claimsList li { font-size: 12px; margin: 6px 0; } /* Comment: compact claim styling */
+
   
   .hint { /* Styles hint text. */
     margin-top: 8px; /* Adds spacing. */
@@ -174,4 +164,30 @@
     font-size: 12px; /* Sets size. */
     color: var(--muted); /* Muted color. */
   } /* Ends version label. */
+
+  #extractDebug { /* Comment: shows the debug container area */
+    margin-top: 10px; /* Comment: spacing under Analyze button */
+    border: 1px solid var(--line); /* Comment: visible border so you can see the box */
+    border-radius: 12px; /* Comment: matches your UI rounding */
+    padding: 8px; /* Comment: inner spacing */
+  } /* Comment: ends extractDebug styles */
+  
+  #extractStats { /* Comment: shows small stats line above the preview */
+    font-size: 12px; /* Comment: matches your small UI text */
+    color: var(--muted); /* Comment: uses muted color */
+    margin-bottom: 6px; /* Comment: spacing before textarea */
+  } /* Comment: ends extractStats styles */
+  
+  #extractPreview { /* Comment: displays extracted text preview */
+    width: 100%; /* Comment: fills container width */
+    height: 140px; /* Comment: fixed height so it is visible */
+    resize: none; /* Comment: prevents resizing */
+    border: 1px solid var(--line); /* Comment: gives textarea a border */
+    border-radius: 10px; /* Comment: rounds corners */
+    padding: 8px; /* Comment: inner spacing */
+    font-size: 12px; /* Comment: readable size */
+    color: var(--text); /* Comment: uses main text color */
+    background: #fff; /* Comment: white background */
+  } /* Comment: ends extractPreview styles */
+  
   
