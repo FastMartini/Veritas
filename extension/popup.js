@@ -56,7 +56,7 @@ sectionHeaders.forEach((btn) => {
    Converts API output into a stable, predictable UI state.
 ------------------------------------ */
 
-function renderAnalyzeResponse(data) {
+function renderExtractResponse(data) {
   // Ensures backend payload structure is visible during development
   console.log("Analyze response:", data);
 
@@ -164,8 +164,8 @@ async function extractFromActiveTab() {
    Thin transport layer only. No business logic.
 ------------------------------------ */
 
-async function callAnalyzeApi(payload) {
-  const response = await fetch("http://127.0.0.1:8000/analyze", {
+async function callExtractApi(payload) {
+  const response = await fetch("http://127.0.0.1:8000/extract", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -208,8 +208,8 @@ analyzeBtn.addEventListener("click", async () => {
       return;
     }
 
-    const result = await callAnalyzeApi(extracted);
-    renderAnalyzeResponse(result);
+    const result = await callExtractApi(extracted);
+    renderExtractResponse(result);
 
     setStatus("Done");
     analyzeBtn.disabled = false;
