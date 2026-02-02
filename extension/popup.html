@@ -1,78 +1,125 @@
-<!DOCTYPE html> <!-- Declares an HTML5 document -->
-<html lang="en"> <!-- Sets the document language to English -->
-  <head> <!-- Head section for metadata -->
-    <meta charset="UTF-8" /> <!-- Defines UTF-8 character encoding -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Enables responsive scaling -->
-    <title>Veritas</title> <!-- Popup window title -->
-    <link rel="stylesheet" href="popup.css" /> <!-- Links popup stylesheet -->
-  </head> <!-- Ends head section -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Core metadata required for a Chrome extension popup -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Veritas</title>
 
-  <body> <!-- Begins popup body -->
+    <!-- Popup-specific styling (isolated from page CSS) -->
+    <link rel="stylesheet" href="popup.css" />
+  </head>
 
-    <header class="top"> <!-- Top header container -->
-      <div class="brand"> <!-- Brand grouping -->
-        <img src="icons/48.png" alt="Veritas logo" class="logoImg" /> <!-- Logo image -->
-        <h1 class="title">Veritas</h1> <!-- App title -->
-      </div> <!-- Ends brand group -->
-      <span id="statusPill" class="pill">Idle</span> <!-- Status pill controlled by JS -->
-    </header> <!-- Ends header -->
+  <body>
+    <!-- Persistent header for branding and system state -->
+    <header class="top">
+      <div class="brand">
+        <!-- Visual brand anchor to reinforce trust and identity -->
+        <img src="icons/48.png" alt="Veritas logo" class="logoImg" />
+        <h1 class="title">Veritas</h1>
+      </div>
 
-    <main class="card"> <!-- Main card container -->
+      <!-- Real-time system status indicator driven by popup.js -->
+      <span id="statusPill" class="pill">Idle</span>
+    </header>
 
-      <div class="hero" id="heroSection"> <!-- Empty state hero section -->
-        <div class="heroTitle">No analysis yet</div> <!-- Empty state title -->
-        <div class="heroSub">Open an article, then run analysis.</div> <!-- Empty state subtitle -->
-      </div> <!-- Ends hero section -->
+    <!-- Primary interaction surface for analysis results -->
+    <main class="card">
+      <!-- Initial empty-state shown before first successful analysis -->
+      <div class="hero" id="heroSection">
+        <div class="heroTitle">No analysis yet</div>
+        <div class="heroSub">Open an article, then run analysis.</div>
+      </div>
 
-      <button id="analyzeBtn" class="primary">Analyze Page</button> <!-- Analyze button -->
+      <!-- Single entry point for triggering extraction + analysis -->
+      <button id="analyzeBtn" class="primary">Analyze Page</button>
 
-       <!-- STEP 1: client extraction debug (temporary) -->
+      <!-- Temporary diagnostics to verify client-side extraction correctness -->
       <div id="extractDebug">
         <div id="extractStats"></div>
         <textarea id="extractPreview" readonly></textarea>
       </div>
 
-      <section class="section"> <!-- Article overview section -->
-        <button class="sectionHdr" type="button" aria-expanded="false" data-target="overviewBody"> <!-- Header toggle -->
-          <span>Article Overview</span> <!-- Section label -->
-          <span class="chev" aria-hidden="true">▾</span> <!-- Chevron indicator -->
-        </button> <!-- Ends section header -->
+      <!-- High-level metadata about the analyzed article -->
+      <section class="section">
+        <button
+          class="sectionHdr"
+          type="button"
+          aria-expanded="false"
+          data-target="overviewBody"
+        >
+          <span>Article Overview</span>
+          <span class="chev" aria-hidden="true">▾</span>
+        </button>
 
-        <div id="overviewBody" class="sectionBody" hidden> <!-- Collapsible body -->
-          <div class="row"> <!-- Source row -->
-            <span class="k">Source</span> <!-- Label -->
-            <span id="sourceValue" class="v">—</span> <!-- Source value -->
+        <!-- Populated entirely from API response -->
+        <div id="overviewBody" class="sectionBody" hidden>
+          <div class="row">
+            <span class="k">Source</span>
+            <span id="sourceValue" class="v">—</span>
           </div>
-          <div class="row"> <!-- Publication date row -->
-            <span class="k">Publication date</span> <!-- Label -->
-            <span id="pubDateValue" class="v">—</span> <!-- Publication date value -->
+
+          <div class="row">
+            <span class="k">Publication date</span>
+            <span id="pubDateValue" class="v">—</span>
           </div>
-          <div class="row"> <!-- Claims detected row -->
-            <span class="k">Claims detected</span> <!-- Label -->
-            <span id="claimsValue" class="v">0</span> <!-- Claims count -->
+
+          <div class="row">
+            <span class="k">Claims detected</span>
+            <span id="claimsValue" class="v">0</span>
           </div>
-        </div> <!-- Ends overview body -->
-      </section> <!-- Ends article overview section -->
+        </div>
+      </section>
 
-      <section class="section"> <!-- Verdict summary section -->
-        <button class="sectionHdr" type="button" aria-expanded="false" data-target="verdictBody"> <!-- Header toggle -->
-          <span>Verdict Summary</span> <!-- Section label -->
-          <span class="chev" aria-hidden="true">▾</span> <!-- Chevron indicator -->
-        </button> <!-- Ends section header -->
+      <!-- Ranked factual statements extracted from the article body -->
+      <section class="section">
+        <button
+          class="sectionHdr"
+          type="button"
+          aria-expanded="false"
+          data-target="claimsBody"
+        >
+          <span>Extracted Claims</span>
+          <span class="chev" aria-hidden="true">▾</span>
+        </button>
 
-        <div id="verdictBody" class="sectionBody" hidden> <!-- Collapsible body -->
-          <div id="verdictPill" class="verdict">Pending</div> <!-- Verdict label -->
-          <div id="verdictSummary" class="hint">Analysis not yet run.</div> <!-- Verdict explanation -->
-        </div> <!-- Ends verdict body -->
-      </section> <!-- Ends verdict section -->
+        <!-- Ordered list preserves relative importance after ranking -->
+        <div id="claimsBody" class="sectionBody" hidden>
+          <ol id="claimsList"></ol>
+        </div>
+      </section>
 
-    </main> <!-- Ends main container -->
+      <!-- Human-readable summary intended to explain system judgment -->
+      <section class="section">
+        <button
+          class="sectionHdr"
+          type="button"
+          aria-expanded="false"
+          data-target="verdictBody"
+        >
+          <span>Verdict Summary</span>
+          <span class="chev" aria-hidden="true">▾</span>
+        </button>
 
-    <footer class="foot"> <!-- Footer container -->
-      <button id="settingsBtn" class="linkBtn" type="button">Settings</button> <!-- Settings button -->
-      <span class="ver">v1.0.0</span> <!-- Version label -->
-    </footer> <!-- Ends footer -->
+        <!-- Verdict remains provisional until agent-based analysis is wired -->
+        <div id="verdictBody" class="sectionBody" hidden>
+          <div id="verdictPill" class="verdict">Pending</div>
+          <div id="verdictSummary" class="hint">
+            Analysis not yet run.
+          </div>
+        </div>
+      </section>
+    </main>
 
-    <script src="popup.js"></script> <!-- Loads popup JavaScript -->
-  </body> <!-- Ends body -->
-</html> <!-- Ends document -->
+    <!-- Secondary actions and versioning -->
+    <footer class="foot">
+      <button id="settingsBtn" class="linkBtn" type="button">
+        Settings
+      </button>
+      <span class="ver">v1.0.0</span>
+    </footer>
+
+    <!-- Popup controller logic -->
+    <script src="popup.js"></script>
+  </body>
+</html>

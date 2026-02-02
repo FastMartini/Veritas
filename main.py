@@ -147,6 +147,8 @@ class AnalyzeResponse(BaseModel):
     publication_date: str | None = Field(None, description="Published date if available")
     claims_detected: int = Field(..., ge=0, description="Number of claims detected")
 
+    claims: list[str] = Field(default_factory=list, description="Extracted claims")  # Comment: returns extracted claims for UI/debug
+
     # Verdict section
     verdict: str = Field(..., description="Pending, True, False, Mixed, Misleading")
     summary: str = Field(..., description="Short verdict explanation")
@@ -175,6 +177,7 @@ def analyze(request: AnalyzeRequest):
         source=domain,
         publication_date=publication,
         claims_detected=len(claims),
+        claims=claims,
         verdict="Pending",
-        summary=f"Extracted {len(claims)} claims. First 3: " + " | ".join(claims[:3])
+        summary="Pending..."
     )

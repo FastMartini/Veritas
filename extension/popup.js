@@ -1,152 +1,233 @@
-// Grab the status pill element for quick user feedback
-const statusPill = document.getElementById("statusPill"); // Stores the status pill DOM node
+/* ---------- DOM REFERENCES ----------
+   Cached once to avoid repeated lookups and to centralize UI wiring.
+------------------------------------ */
 
-// Grab the analyze button element to trigger analysis flow
-const analyzeBtn = document.getElementById("analyzeBtn"); // Stores the analyze button DOM node
+const statusPill = document.getElementById("statusPill");        // Reflects pipeline state (idle → analyzing → done/error)
+const analyzeBtn = document.getElementById("analyzeBtn");        // Single user entry point for analysis
+const sectionHeaders = document.querySelectorAll(".sectionHdr"); // Enables collapsible UI sections
+const settingsBtn = document.getElementById("settingsBtn");      // Reserved for future configuration surface
 
-// Grab all collapsible section header buttons
-const sectionHeaders = document.querySelectorAll(".sectionHdr"); // Stores all section header buttons
+// Article metadata surfaced from API
+const sourceValue = document.getElementById("sourceValue");
+const pubDateValue = document.getElementById("pubDateValue");
+const claimsValue = document.getElementById("claimsValue");
 
-// Grab the settings button element for future wiring
-const settingsBtn = document.getElementById("settingsBtn"); // Stores the settings button DOM node
+// Ranked claim output container
+const claimsList = document.getElementById("claimsList");
 
-// Grab Article Overview value fields to populate from backend response
-const sourceValue = document.getElementById("sourceValue"); // Stores the source value DOM node
-const pubDateValue = document.getElementById("pubDateValue"); // Stores the publication date value DOM node
-const claimsValue = document.getElementById("claimsValue"); // Stores the claims detected DOM node
+// Verdict surface (agent-facing later)
+const verdictPill = document.getElementById("verdictPill");
+const verdictSummary = document.getElementById("verdictSummary");
 
-// Grab Verdict Summary fields to populate from backend response
-const verdictPill = document.getElementById("verdictPill"); // Stores the verdict label DOM node
-const verdictSummary = document.getElementById("verdictSummary"); // Stores the verdict summary DOM node
+// Empty-state container hidden after first successful analysis
+const heroSection = document.getElementById("heroSection");
 
-// Grab the hero section so it can be hidden after the first analysis
-const heroSection = document.getElementById("heroSection"); // Stores the hero section DOM node
-
-const extractStats = document.getElementById("extractStats"); // Comment: stores extraction stats element
-const extractPreview = document.getElementById("extractPreview"); // Comment: stores extraction preview textarea
+// Temporary diagnostics for validating client extraction correctness
+const extractStats = document.getElementById("extractStats");
+const extractPreview = document.getElementById("extractPreview");
 
 
-// Helper to set the status pill text
-function setStatus(text) { // Defines a helper function to update the status pill
-  statusPill.textContent = text; // Sets the pill text content to the provided status
-} // Ends setStatus helper
+/* ---------- UI STATE HELPERS ----------
+   Centralized helpers prevent inconsistent UI transitions.
+------------------------------------ */
 
-// Helper to open or close a section body when its header is clicked
-function toggleSection(btn) { // Defines a helper to toggle collapsible sections
-  const targetId = btn.getAttribute("data-target"); // Reads the target body id from data-target attribute
-  const body = document.getElementById(targetId); // Finds the associated body element by id
-  const isOpen = btn.getAttribute("aria-expanded") === "true"; // Checks whether the section is currently open
-  btn.setAttribute("aria-expanded", String(!isOpen)); // Updates aria-expanded to reflect new state
-  body.hidden = isOpen; // Hides the body when open, shows it when closed
-} // Ends toggleSection helper
+// Updates the visible pipeline state without coupling to business logic
+function setStatus(text) {
+  statusPill.textContent = text;
+}
 
-// Bind click handlers to each section header to toggle its body
-sectionHeaders.forEach((btn) => { // Iterates over all section header buttons
-  btn.addEventListener("click", () => toggleSection(btn)); // Attaches click listener to toggle that section
-}); // Ends section header binding loop
+// Generic collapsible-section controller driven by data-target attributes
+function toggleSection(btn) {
+  const targetId = btn.getAttribute("data-target");
+  const body = document.getElementById(targetId);
+  const isOpen = btn.getAttribute("aria-expanded") === "true";
 
-// Render the backend response into the popup UI
-function renderAnalyzeResponse(data) { // Defines renderer that maps API response to DOM
+  btn.setAttribute("aria-expanded", String(!isOpen));
+  body.hidden = isOpen;
+}
 
-  console.log("Analyze response:", data); // Comment: confirms backend data is arriving
+// Attach section toggle behavior declaratively
+sectionHeaders.forEach((btn) => {
+  btn.addEventListener("click", () => toggleSection(btn));
+});
 
-  sourceValue.textContent = data.source ?? "Unknown"; // Updates source text
-  pubDateValue.textContent = data.publication_date ?? "Unknown"; // Updates publication date text
-  claimsValue.textContent = String(data.claims_detected ?? 0); // Updates claims count text
 
-  verdictPill.textContent = data.verdict ?? "Pending"; // Updates verdict label
-  verdictSummary.textContent = data.summary ?? ""; // Updates verdict summary text
+/* ---------- RESPONSE RENDERING ----------
+   Converts API output into a stable, predictable UI state.
+------------------------------------ */
 
-  if (heroSection) heroSection.hidden = true; // Hides hero section after successful render
-} // Ends renderAnalyzeResponse function
+function renderAnalyzeResponse(data) {
+  // Ensures backend payload structure is visible during development
+  console.log("Analyze response:", data);
 
-// Extract url, title, visible article text, and raw publication date from the active tab
-async function extractFromActiveTab() { // Defines async function to extract content from the active tab
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true }); // Queries the active tab in the current window
-  const tab = tabs[0]; // Selects the first tab returned by query
-  if (!tab || !tab.id) throw new Error("No active tab"); // Throws an error if no valid tab is found
+  sourceValue.textContent = data.source ?? "Unknown";
+  pubDateValue.textContent = data.publication_date ?? "Unknown";
+  claimsValue.textContent = String(data.claims_detected ?? 0);
 
-  const results = await chrome.scripting.executeScript({ // Executes a script in the context of the active tab
-    target: { tabId: tab.id }, // Targets the active tab by id
-    func: () => { // Defines a function that runs inside the webpage
-      const url = window.location.href; // Captures the current page URL
-      const title = document.title; // Captures the current page title
+  // Claims are rendered explicitly to preserve ranking order
+  if (claimsList) {
+    claimsList.innerHTML = "";
+    const claims = Array.isArray(data.claims) ? data.claims : [];
 
-      const root = document.querySelector("article") || document.querySelector("main") || document.body; // Chooses likely article container
-      const paragraphs = Array.from(root.querySelectorAll("p")) // Collects paragraph elements within root
-        .map((p) => (p.innerText || "").trim()) // Extracts and trims each paragraph text
-        .filter((t) => t.length > 0); // Removes empty strings
+    for (const claim of claims) {
+      const li = document.createElement("li");
+      li.textContent = claim;
+      claimsList.appendChild(li);
+    }
+  }
 
-      const text = paragraphs.length > 0 // Checks if paragraphs were found
-        ? paragraphs.join("\n\n") // Joins paragraphs with spacing if present
-        : (root.innerText || "").trim(); // Falls back to root innerText if no paragraphs found
+  verdictPill.textContent = data.verdict ?? "Pending";
+  verdictSummary.textContent = data.summary ?? "";
 
-      const metaArticlePublished = document.querySelector('meta[property="article:published_time"]')?.getAttribute("content"); // Reads article published meta
-      const metaOgPublished = document.querySelector('meta[property="og:published_time"]')?.getAttribute("content"); // Reads og published meta
-      const metaItemPropPublished = document.querySelector('meta[itemprop="datePublished"]')?.getAttribute("content"); // Reads itemprop datePublished
-      const metaPubdate = document.querySelector('meta[name="pubdate"]')?.getAttribute("content"); // Reads pubdate meta
-      const metaPublishDate = document.querySelector('meta[name="publish-date"]')?.getAttribute("content"); // Reads publish-date meta
-      const metaDate = document.querySelector('meta[name="date"]')?.getAttribute("content"); // Reads date meta
-      const timeDatetime = document.querySelector("time[datetime]")?.getAttribute("datetime"); // Reads first time datetime attribute
+  // Empty-state should never reappear once analysis succeeds
+  if (heroSection) heroSection.hidden = true;
+}
 
-      const published_at = metaArticlePublished || metaOgPublished || metaItemPropPublished || metaPubdate || metaPublishDate || metaDate || timeDatetime || null; // Picks first available raw date
 
-      return { url, title, text, published_at }; // Returns extracted data including raw publication date
-    }, // Ends page function
-  }); // Ends executeScript call
+/* ---------- CLIENT EXTRACTION ----------
+   Runs inside the active tab to avoid server-side scraping.
+------------------------------------ */
 
-  return results[0].result; // Returns the first execution result payload
-} // Ends extractFromActiveTab function
+async function extractFromActiveTab() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tab = tabs[0];
 
-// Call the FastAPI backend /analyze endpoint with extracted content
-async function callAnalyzeApi(payload) { // Defines async function to call backend endpoint
-  const response = await fetch("http://127.0.0.1:8000/analyze", { // Sends a request to local FastAPI server
-    method: "POST", // Uses POST method for JSON body
-    headers: { "Content-Type": "application/json" }, // Declares JSON content type
-    body: JSON.stringify(payload), // Serializes payload to JSON
-  }); // Ends fetch call
+  if (!tab || !tab.id) {
+    throw new Error("No active tab");
+  }
 
-  if (!response.ok) { // Checks for non-2xx responses
-    const text = await response.text(); // Reads response as text for debugging
-    throw new Error(`API error ${response.status}: ${text}`); // Throws an error with status and body
-  } // Ends error guard
+  const results = await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
 
-  return await response.json(); // Parses and returns the JSON response
-} // Ends callAnalyzeApi function
+    // Executed in-page to access rendered DOM, not raw HTML
+    func: () => {
+      const url = window.location.href;
+      const title = document.title;
 
-// Handle analyze button click by extracting text and sending it to backend
-analyzeBtn.addEventListener("click", async () => { // Adds click handler for analyze button
-  try { // Starts try block to handle runtime errors
-    setStatus("Analyzing"); // Sets status to analyzing
-    analyzeBtn.disabled = true; // Disables the button to prevent double clicks
+      // Heuristic container selection favors semantic article markup
+      const root =
+        document.querySelector("article") ||
+        document.querySelector("main") ||
+        document.body;
 
-    const extracted = await extractFromActiveTab(); // Extracts url, title, text, and published_at from the active tab
+      const paragraphs = Array.from(root.querySelectorAll("p"))
+        .map((p) => (p.innerText || "").trim())
+        .filter((t) => t.length > 0);
 
-    if (extractStats) extractStats.textContent = `Paragraphs: ${(extracted.text.match(/\n\n/g) || []).length + 1} | Characters: ${extracted.text.length}`; // Comment: shows quick stats for what was extracted
-    if (extractPreview) extractPreview.value = extracted.text || ""; // Comment: displays extracted text in the debug textarea
+      const text =
+        paragraphs.length > 0
+          ? paragraphs.join("\n\n")
+          : (root.innerText || "").trim();
 
-    if (!extracted.text || extracted.text.length === 0) { // Checks if extracted text is empty
-      setStatus("No text"); // Updates status to indicate no text was found
-      analyzeBtn.disabled = false; // Re-enables the button
-      return; // Stops processing early
-    } // Ends empty-text guard
+      // Metadata scraping is best-effort and non-fatal
+      const metaArticlePublished =
+        document.querySelector('meta[property="article:published_time"]')
+          ?.getAttribute("content");
+      const metaOgPublished =
+        document.querySelector('meta[property="og:published_time"]')
+          ?.getAttribute("content");
+      const metaItemPropPublished =
+        document.querySelector('meta[itemprop="datePublished"]')
+          ?.getAttribute("content");
+      const metaPubdate =
+        document.querySelector('meta[name="pubdate"]')
+          ?.getAttribute("content");
+      const metaPublishDate =
+        document.querySelector('meta[name="publish-date"]')
+          ?.getAttribute("content");
+      const metaDate =
+        document.querySelector('meta[name="date"]')
+          ?.getAttribute("content");
+      const timeDatetime =
+        document.querySelector("time[datetime]")
+          ?.getAttribute("datetime");
 
-    const result = await callAnalyzeApi(extracted); // Calls the backend with extracted payload
-    renderAnalyzeResponse(result); // Renders backend response into popup UI
+      const published_at =
+        metaArticlePublished ||
+        metaOgPublished ||
+        metaItemPropPublished ||
+        metaPubdate ||
+        metaPublishDate ||
+        metaDate ||
+        timeDatetime ||
+        null;
 
-    setStatus("Done"); // Sets status to done after successful render
-    analyzeBtn.disabled = false; // Re-enables the button after completion
-  } catch (err) { // Catches any errors from extract or fetch
-    console.error(err); // Logs the error to the extension console for debugging
-    setStatus("Error"); // Sets status to error
-    analyzeBtn.disabled = false; // Re-enables the button after error
-  } // Ends try/catch
-}); // Ends analyze handler
+      return { url, title, text, published_at };
+    },
+  });
 
-// Handle settings button click with placeholder behavior
-settingsBtn.addEventListener("click", () => { // Adds click handler for settings button
-  setStatus("Settings soon"); // Updates status to indicate settings are not wired yet
-}); // Ends settings handler
+  return results[0].result;
+}
 
-// Initialize the status pill text on load
-setStatus("Idle"); // Sets initial status state
+
+/* ---------- API COMMUNICATION ----------
+   Thin transport layer only. No business logic.
+------------------------------------ */
+
+async function callAnalyzeApi(payload) {
+  const response = await fetch("http://127.0.0.1:8000/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`API error ${response.status}: ${text}`);
+  }
+
+  return await response.json();
+}
+
+
+/* ---------- USER FLOW ----------
+   Enforces a linear, debounced analysis lifecycle.
+------------------------------------ */
+
+analyzeBtn.addEventListener("click", async () => {
+  try {
+    setStatus("Analyzing");
+    analyzeBtn.disabled = true;
+
+    const extracted = await extractFromActiveTab();
+
+    // Diagnostics validate extraction before downstream processing
+    if (extractStats) {
+      extractStats.textContent =
+        `Paragraphs: ${(extracted.text.match(/\n\n/g) || []).length + 1}` +
+        ` | Characters: ${extracted.text.length}`;
+    }
+
+    if (extractPreview) {
+      extractPreview.value = extracted.text || "";
+    }
+
+    if (!extracted.text || extracted.text.length === 0) {
+      setStatus("No text");
+      analyzeBtn.disabled = false;
+      return;
+    }
+
+    const result = await callAnalyzeApi(extracted);
+    renderAnalyzeResponse(result);
+
+    setStatus("Done");
+    analyzeBtn.disabled = false;
+  } catch (err) {
+    console.error(err);
+    setStatus("Error");
+    analyzeBtn.disabled = false;
+  }
+});
+
+
+/* ---------- PLACEHOLDERS ----------
+   Reserved hooks for future expansion.
+------------------------------------ */
+
+settingsBtn.addEventListener("click", () => {
+  setStatus("Settings soon");
+});
+
+// Initial UI state must be deterministic on popup load
+setStatus("Idle");

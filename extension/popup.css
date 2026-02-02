@@ -132,6 +132,11 @@
     font-weight: 650; /* Emphasizes verdict. */
     font-size: 12px; /* Sets size. */
   } /* Ends verdict styles. */
+
+  #claimsBody { max-height: 160px; overflow: auto; } /* Comment: keeps claims list scrollable */
+  #claimsList { margin: 0; padding-left: 18px; } /* Comment: readable list spacing */
+  #claimsList li { font-size: 12px; margin: 6px 0; } /* Comment: compact claim styling */
+
   
   .hint { /* Styles hint text. */
     margin-top: 8px; /* Adds spacing. */
