@@ -1,9 +1,11 @@
+from __future__ import annotations # Why: postpones annotation evaluation
 from fastapi import FastAPI
 from pydantic import BaseModel, HttpUrl, Field
 from urllib.parse import urlparse
 from dateutil import parser
 import re
 import spacy
+import hashlib
 
 
 # Load NLP resources once to keep request latency stable
@@ -15,7 +17,6 @@ except Exception:
 
 app = FastAPI(title="Veritas API")
 
-
 def normalize_date(raw_date: str | None) -> str:
     # UI expects a stable date string; unknown must not break rendering
     if not raw_date:
@@ -26,14 +27,12 @@ def normalize_date(raw_date: str | None) -> str:
     except Exception:
         return "Unknown"
 
-
 def normalize_text(text: str) -> str:
     # Preserve newlines since boilerplate filtering is line-based
     s = (text or "").replace("\r\n", "\n").replace("\r", "\n")
     s = re.sub(r"[ \t]+", " ", s)
     s = re.sub(r"\n{3,}", "\n\n", s)
     return s.strip()
-
 
 def strip_boilerplate_lines(text: str) -> str:
     # Removes known non-article tokens so they do not pollute sentence ranking
@@ -57,7 +56,6 @@ def strip_boilerplate_lines(text: str) -> str:
         cleaned_lines.append(s)
 
     return "\n".join(cleaned_lines).strip()
-
 
 def score_sentence(sent) -> int:
     # Prefer sentences that are typically more verifiable (entities, numbers, attribution)
@@ -85,7 +83,6 @@ def score_sentence(sent) -> int:
 
     return score
 
-
 def is_claim_sentence(sent) -> bool:
     # Hard gate removes fragments/questions so downstream analysis stays high-signal
     s = sent.text.strip()
@@ -100,9 +97,8 @@ def is_claim_sentence(sent) -> bool:
     has_verb = any(t.pos_ == "VERB" for t in sent)
     return has_subject and has_verb
 
-
-def extract_claims(text: str, max_claims: int) -> list[str]:
-    # Cleanup first, then parse/rank
+# Why: returning objects now prevents breaking changes when analyze needs claim_id.
+def extract_claims(text: str, max_claims: int) -> list[Claim]:
     cleaned = strip_boilerplate_lines(normalize_text(text))
     if not cleaned:
         return []
@@ -112,51 +108,68 @@ def extract_claims(text: str, max_claims: int) -> list[str]:
 
     doc = nlp(cleaned)
 
-    candidates: list[tuple[int, str]] = []
+    candidates: list[tuple[int, int, str]] = []
     seen: set[str] = set()
 
-    for sent in doc.sents:
+    for i, sent in enumerate(doc.sents):
         if not is_claim_sentence(sent):
             continue
 
-        claim = sent.text.strip()
-        key = claim.lower()
+        claim_text = sent.text.strip()
+        key = claim_text.lower()
         if key in seen:
             continue
 
         seen.add(key)
-        candidates.append((score_sentence(sent), claim))
+        candidates.append((score_sentence(sent), i, claim_text))
 
     candidates.sort(key=lambda x: x[0], reverse=True)
-    return [claim for _, claim in candidates[:max_claims]]
+
+    top = candidates[:max_claims]
+    return [
+        Claim(
+            id=stable_claim_id(claim_text),
+            text=claim_text,
+            score=score,
+            sentence_index=idx,
+        )
+        for score, idx, claim_text in top
+    ]
+
+# Why: Normalizing claim text before hashing prevents trivial whitespace differences from changing IDs.
+def stable_claim_id(claim_text: str) -> str:
+    canonical = " ".join((claim_text or "").split()).strip().lower()
+    digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    return digest[:12]
 
 
 # ----- Request/Response models -----
 
+# Why: Returning claim metadata now avoids breaking changes later when agent results need mapping.
+class Claim(BaseModel):
+    id: str = Field(..., description="Stable identifier for mapping agent results back to the claim")
+    text: str = Field(..., description="Claim text")
+    score: int = Field(..., description="Ranking score used for ordering")
+    sentence_index: int = Field(..., ge=0, description="Index of the sentence in the document")
 class ExtractRequest(BaseModel):
     url: HttpUrl = Field(..., description="URL the text came from")
     title: str | None = Field(None, description="Optional article title")
     text: str = Field(..., min_length=1, description="Extracted visible article text")
     published_at: str | None = Field(None, description="Raw publication date string from the page")
     max_claims: int = Field(12, ge=1, le=50, description="Max claims to extract")
-
-
 class ExtractResponse(BaseModel):
     ok: bool
     source: str | None = Field(None, description="Publisher or domain name")
     publication_date: str | None = Field(None, description="Published date if available")
     claims_detected: int = Field(..., ge=0, description="Number of claims detected")
-    claims: list[str] = Field(default_factory=list, description="Extracted claims")
-
-
+    claims: list[Claim] = Field(default_factory=list, description="Extracted claims")
+    
 # Keep /analyze reserved for the agent step; stubbed for now
 class AnalyzeRequest(BaseModel):
     url: HttpUrl = Field(..., description="URL for context")
     source: str | None = Field(None, description="Publisher/domain")
     publication_date: str | None = Field(None, description="Normalized publication date")
-    claims: list[str] = Field(default_factory=list, description="Claims to analyze")
-
-
+    claims: list[Claim] = Field(default_factory=list, description="Claims to analyze")
 class AnalyzeResponse(BaseModel):
     ok: bool
     verdict: str = Field(..., description="Pending, True, False, Mixed, Misleading")
@@ -166,7 +179,6 @@ class AnalyzeResponse(BaseModel):
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
-
 
 @app.post("/extract", response_model=ExtractResponse)
 def extract(req: ExtractRequest):
@@ -185,7 +197,6 @@ def extract(req: ExtractRequest):
         claims_detected=len(claims),
         claims=claims,
     )
-
 
 @app.post("/analyze", response_model=AnalyzeResponse)
 def analyze(req: AnalyzeRequest):

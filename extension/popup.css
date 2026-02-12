@@ -1,193 +1,241 @@
-:root { /* Defines global variables for the popup. */
-    --accent: rgb(226, 109, 79); /* Veritas brand accent color. */
-    --bg: #f7f7f8; /* Light background color. */
-    --card: #ffffff; /* Card background color. */
-    --text: #1f1f1f; /* Primary text color. */
-    --muted: #6b6b6b; /* Secondary text color. */
-    --line: #e6e6e6; /* Divider and border color. */
-  } /* Ends root variables. */
-  
-  * { box-sizing: border-box; } /* Ensures padding and borders are included in width. */
-  
-  body { /* Styles the main popup body. */
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; /* Sets system font stack. */
-    width: 360px; /* Sets popup width. */
-    margin: 0; /* Removes default margins. */
-    padding: 12px; /* Adds inner spacing. */
-    background: var(--bg); /* Applies background color. */
-    color: var(--text); /* Applies text color. */
-  } 
-  
-  .top { /* Styles the header row. */
-    display: flex; /* Enables flex layout. */
-    align-items: center; /* Vertically centers items. */
-    justify-content: space-between; /* Pushes items to edges. */
-    margin-bottom: 10px; /* Adds spacing below header. */
-  } 
-  
-  .brand { /* Styles brand group. */
-    display: flex; /* Enables flex layout. */
-    align-items: center; /* Aligns logo and title. */
-    gap: 8px; /* Adds spacing between logo and title. */
-  } 
-  
-  .logoImg { /* Styles the brand logo image in the header. */
-    width: 16px; /* Sets a compact logo size. */
-    height: 16px; /* Keeps logo square. */
-    object-fit: contain; /* Ensures the image scales cleanly. */
-  }
-  
- 
-  .title { /* Styles Veritas title. */
-    font-size: 16px; /* Sets title size. */
-    margin: 0; /* Removes default margin. */
-    font-weight: 650; /* Sets semi-bold weight. */
-  } 
-  
-  .pill { /* Styles status pill. */
-    font-size: 12px; /* Sets small text. */
-    padding: 4px 8px; /* Adds pill padding. */
-    border: 1px solid var(--line); /* Adds subtle border. */
-    border-radius: 999px; /* Makes it pill-shaped. */
-    background: #fff; /* Sets pill background. */
-  }
-  
-  .card { /* Styles main card container. */
-    background: var(--card); /* Sets card background. */
-    border: 1px solid var(--line); /* Adds border. */
-    border-radius: 16px; /* Rounds corners. */
-    padding: 12px; /* Adds padding. */
-  } 
-  
-  .hero { /* Styles the empty state block. */
-    padding: 6px 2px 12px 2px; /* Adds spacing around hero. */
-  } 
-  
-  .heroTitle { /* Styles empty-state title. */
-    font-size: 14px; /* Sets title size. */
-    font-weight: 650; /* Sets weight. */
-    margin-bottom: 4px; /* Adds spacing under title. */
-  } /* Ends heroTitle styles. */
-  
-  .heroSub { /* Styles empty-state subtitle. */
-    font-size: 12px; /* Sets subtitle size. */
-    color: var(--muted); /* Uses muted color. */
-  } /* Ends heroSub styles. */
-  
-  .primary { /* Styles main CTA button. */
-    width: 100%; /* Makes button full width. */
-    padding: 10px 12px; /* Adds button padding. */
-    border-radius: 12px; /* Rounds corners. */
-    border: 1px solid var(--line); /* Adds border. */
-    background: #fff; /* Default background. */
-    color: var(--text); /* Text color. */
-    font-weight: 650; /* Weight for prominence. */
-    cursor: not-allowed; /* Shows disabled cursor. */
-    opacity: 0.55; /* Visually indicates disabled. */
-  } /* Ends primary styles. */
-  
-  .section { /* Styles each collapsible section. */
-    border-top: 1px solid var(--line); /* Adds divider line. */
-    margin-top: 10px; /* Adds spacing above section. */
-    padding-top: 10px; /* Adds spacing inside section. */
-  } /* Ends section styles. */
-  
-  .sectionHdr { /* Styles the section header button. */
-    width: 100%; /* Full width. */
-    display: flex; /* Flex layout. */
-    justify-content: space-between; /* Space label and chevron. */
-    align-items: center; /* Center vertically. */
-    border: 0; /* Removes border. */
-    background: transparent; /* Transparent background. */
-    padding: 6px 0; /* Adds vertical padding. */
-    font-weight: 650; /* Emphasizes label. */
-    cursor: pointer; /* Pointer cursor. */
-  } /* Ends sectionHdr styles. */
-  
-  .sectionBody { /* Styles the collapsible body content. */
-    padding: 6px 0 0 0; /* Adds spacing at top. */
-  } /* Ends sectionBody styles. */
-  
-  .row { /* Styles key value rows. */
-    display: flex; /* Flex layout. */
-    justify-content: space-between; /* Spreads key and value. */
-    padding: 6px 0; /* Adds vertical padding. */
-  } /* Ends row styles. */
-  
-  .k { /* Styles key labels. */
-    font-size: 12px; /* Sets size. */
-    color: var(--muted); /* Muted key color. */
-  } /* Ends key styles. */
-  
-  .v { /* Styles value text. */
-    font-size: 12px; /* Sets size. */
-  } /* Ends value styles. */
-  
-  .verdict { /* Styles verdict badge. */
-    display: inline-block; /* Makes it badge-like. */
-    padding: 6px 10px; /* Adds padding. */
-    border-radius: 999px; /* Pill shape. */
-    border: 1px solid color-mix(in srgb, var(--accent) 55%, #ffffff); /* Soft accent border. */
-    color: var(--accent); /* Accent text. */
-    font-weight: 650; /* Emphasizes verdict. */
-    font-size: 12px; /* Sets size. */
-  } /* Ends verdict styles. */
+/* ---------- DESIGN TOKENS ----------
+   Centralized variables enforce visual consistency and make future theming cheap.
+----------------------------------- */
+:root {
+  --accent: rgb(226, 109, 79); /* Brand anchor used sparingly for emphasis */
+  --bg: #f7f7f8;              /* Neutral canvas to reduce visual fatigue */
+  --card: #ffffff;            /* Elevated surface for primary content */
+  --text: #1f1f1f;             /* High-contrast body text */
+  --muted: #6b6b6b;            /* Secondary information hierarchy */
+  --line: #e6e6e6;             /* Low-contrast separators */
+}
 
-  #claimsBody { max-height: 160px; overflow: auto; } /* Comment: keeps claims list scrollable */
-  #claimsList { margin: 0; padding-left: 18px; } /* Comment: readable list spacing */
-  #claimsList li { font-size: 12px; margin: 6px 0; } /* Comment: compact claim styling */
+* {
+  box-sizing: border-box;     /* Predictable layout sizing across components */
+}
 
-  
-  .hint { /* Styles hint text. */
-    margin-top: 8px; /* Adds spacing. */
-    font-size: 12px; /* Sets size. */
-    color: var(--muted); /* Muted color. */
-  } /* Ends hint styles. */
-  
-  .foot { /* Styles footer row. */
-    display: flex; /* Flex layout. */
-    justify-content: space-between; /* Spaces elements. */
-    align-items: center; /* Vertical alignment. */
-    padding: 10px 4px 0 4px; /* Adds spacing. */
-  } /* Ends foot styles. */
-  
-  .linkBtn { /* Styles footer button. */
-    border: 0; /* Removes border. */
-    background: transparent; /* Transparent. */
-    color: var(--accent); /* Accent color. */
-    font-weight: 650; /* Emphasizes link. */
-    cursor: pointer; /* Pointer cursor. */
-    padding: 6px; /* Adds tap area. */
-  } /* Ends linkBtn styles. */
-  
-  .ver { /* Styles version label. */
-    font-size: 12px; /* Sets size. */
-    color: var(--muted); /* Muted color. */
-  } /* Ends version label. */
+/* ---------- GLOBAL CONTAINER ----------
+   Fixed-width popup optimized for scanability, not scrolling.
+-------------------------------------- */
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  width: 360px;               /* Chrome popup ergonomic sweet spot */
+  margin: 0;
+  padding: 12px;
+  background: var(--bg);
+  color: var(--text);
+}
 
-  #extractDebug { /* Comment: shows the debug container area */
-    margin-top: 10px; /* Comment: spacing under Analyze button */
-    border: 1px solid var(--line); /* Comment: visible border so you can see the box */
-    border-radius: 12px; /* Comment: matches your UI rounding */
-    padding: 8px; /* Comment: inner spacing */
-  } /* Comment: ends extractDebug styles */
-  
-  #extractStats { /* Comment: shows small stats line above the preview */
-    font-size: 12px; /* Comment: matches your small UI text */
-    color: var(--muted); /* Comment: uses muted color */
-    margin-bottom: 6px; /* Comment: spacing before textarea */
-  } /* Comment: ends extractStats styles */
-  
-  #extractPreview { /* Comment: displays extracted text preview */
-    width: 100%; /* Comment: fills container width */
-    height: 140px; /* Comment: fixed height so it is visible */
-    resize: none; /* Comment: prevents resizing */
-    border: 1px solid var(--line); /* Comment: gives textarea a border */
-    border-radius: 10px; /* Comment: rounds corners */
-    padding: 8px; /* Comment: inner spacing */
-    font-size: 12px; /* Comment: readable size */
-    color: var(--text); /* Comment: uses main text color */
-    background: #fff; /* Comment: white background */
-  } /* Comment: ends extractPreview styles */
-  
-  
+/* ---------- HEADER ----------
+   Persistent identity + state awareness.
+----------------------------- */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;                   /* Keeps logo secondary to the product name */
+}
+
+.logoImg {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;        /* Prevents distortion across icon sizes */
+}
+
+.title {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 650;           /* Slightly heavier for brand recall */
+}
+
+.pill {
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;       /* Visual affordance for “state” */
+  background: #fff;
+}
+
+/* ---------- PRIMARY SURFACE ----------
+   Single elevated container to reduce cognitive fragmentation.
+------------------------------------ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+/* ---------- EMPTY STATE ----------
+   Guides first-time users without demanding interaction.
+-------------------------------- */
+.hero {
+  padding: 6px 2px 12px 2px;
+}
+
+.heroTitle {
+  font-size: 14px;
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+
+.heroSub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---------- PRIMARY ACTION ----------
+   Disabled by default to reinforce single-flow interaction.
+----------------------------------- */
+.primary {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  font-weight: 650;
+  cursor: not-allowed;        /* Explicitly signals gated action */
+  opacity: 0.55;              /* Prevents premature interaction */
+}
+
+/* ---------- SECTIONS ----------
+   Collapsible to preserve vertical space and reduce overload.
+------------------------------- */
+.section {
+  border-top: 1px solid var(--line);
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.sectionHdr {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  padding: 6px 0;
+  font-weight: 650;           /* Signals interactivity without buttons */
+  cursor: pointer;
+}
+
+.sectionBody {
+  padding: 6px 0 0 0;         /* Keeps expansion visually anchored */
+}
+
+/* ---------- METADATA ROWS ----------
+   Optimized for fast left-to-right scanning.
+----------------------------------- */
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.k {
+  font-size: 12px;
+  color: var(--muted);        /* De-emphasizes labels over values */
+}
+
+.v {
+  font-size: 12px;
+}
+
+/* ---------- VERDICT ----------
+   Visually distinct but intentionally restrained (no red/green yet).
+-------------------------------- */
+.verdict {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, #ffffff);
+  color: var(--accent);
+  font-weight: 650;
+  font-size: 12px;
+}
+
+/* ---------- CLAIMS LIST ----------
+   Scrollable to avoid dominating the popup.
+--------------------------------- */
+#claimsBody {
+  max-height: 160px;          /* Prevents long articles from flooding UI */
+  overflow: auto;
+}
+
+#claimsList {
+  margin: 0;
+  padding-left: 18px;         /* Preserves ordered list semantics */
+}
+
+#claimsList li {
+  font-size: 12px;
+  margin: 6px 0;              /* Breathes without wasting space */
+}
+
+/* ---------- EXPLANATORY TEXT ----------
+   Used for human-readable system output.
+-------------------------------------- */
+.hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---------- FOOTER ----------
+   Secondary actions kept visually subordinate.
+-------------------------------- */
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 4px 0 4px;
+}
+
+.linkBtn {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 650;
+  cursor: pointer;
+  padding: 6px;               /* Touch-friendly without visual weight */
+}
+
+.ver {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---------- EXTRACTION DEBUG ----------
+   Temporary visibility into client-side parsing correctness.
+-------------------------------------- */
+#extractDebug {
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+#extractStats {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+#extractPreview {
+  width: 100%;
+  height: 140px;
+  resize: none;               /* Prevents layout breakage */
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px;
+  font-size: 12px;
+  color: var(--text);
+  background: #fff;
+}
