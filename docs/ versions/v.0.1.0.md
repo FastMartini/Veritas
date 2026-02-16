@@ -136,3 +136,105 @@ Reads metadata regarding publication date.
 
 <img width="468" height="101" alt="image" src="https://github.com/user-attachments/assets/eba1cad8-11d9-42df-a408-c828b496c388" />
 
+---
+## Adding Visible Article Content Extraction (popup.js)
+
+The extension injects a script into the active tab, selects a likely article container (article, main, or body), extracts the visible text from \<p> tags via innerText, and joins the paragraphs into a single article body string for API submission.
+
+```javascript
+
+/* ---------- CLIENT EXTRACTION ----------
+   Runs inside the active tab to access rendered DOM (visible text), not raw HTML.
+------------------------------------ */
+
+async function extractFromActiveTab() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tab = tabs[0];
+
+  if (!tab || !tab.id) throw new Error("No active tab");
+
+  const results = await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+
+    // Executed in-page to access the rendered DOM and capture visible article text.
+    func: () => {
+      const url = window.location.href;
+      const title = document.title;
+
+      // Heuristic container selection favors semantic article markup.
+      const root =
+        document.querySelector("article") ||
+        document.querySelector("main") ||
+        document.body;
+
+      // Extracts visible paragraph text from the selected container.
+      const paragraphs = Array.from(root.querySelectorAll("p"))
+        .map((p) => (p.innerText || "").trim())
+        .filter((t) => t.length > 0);
+
+      // Joins paragraphs into one article body string (fallback to full container text).
+      const text =
+        paragraphs.length > 0
+          ? paragraphs.join("\n\n")
+          : (root.innerText || "").trim();
+
+      return { url, title, text };
+    },
+  });
+
+  return results[0].result;
+}
+
+
+```
+
+## Popup Rendering:
+<img width="361" height="304" alt="Screenshot 2026-02-16 at 6 15 32 PM" src="https://github.com/user-attachments/assets/7eea1f7a-f1df-4722-a5a3-84948b6374b1" />
+
+### 1. Where the preview "lives" in popup.html
+This block creates the UI container and the <textarea> that will display the preview:
+
+```html
+<div id="extractDebug">
+  <div id="extractStats"></div>
+  <textarea id="extractPreview" readonly></textarea>
+</div>
+
+```
+
+### 2. Where popup.js gets the textarea reference
+At the top of your JS you cache the DOM node:
+
+```javascript
+const extractPreview = document.getElementById("extractPreview");
+```
+
+### 3. Where the visible article text is extracted
+When you click Analyze Page, you call:
+
+```javascript
+const extracted = await extractFromActiveTab();
+
+```
+
+### 4. Where the popup preview is populated
+Right after extractFromActiveTab() returns, you assign the extracted text into the textarea:
+
+```javascript
+if (extractPreview) {
+  extractPreview.value = extracted.text || "";
+}
+
+```
+
+### 5. Where the “Paragraphs / Characters” line comes from
+This line updates the extractStats div:
+
+```javascript
+if (extractStats) {
+  extractStats.textContent =
+    `Paragraphs: ${(extracted.text.match(/\n\n/g) || []).length + 1}` +
+    ` | Characters: ${extracted.text.length}`;
+}
+
+```
