@@ -1,4 +1,4 @@
-# Veritas API Setup
+# Veritas v0.1.0 – Veritas API Setup 
 
 ---
 
