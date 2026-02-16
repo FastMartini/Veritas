@@ -1,6 +1,20 @@
-fastapi[standard]==0.128.0
-pydantic==2.12.5
-uvicorn[standard]
-httpx
-beautifulsoup4
-trafilatura
+# ---- FastAPI stack ----
+fastapi>=0.110
+uvicorn[standard]>=0.27
+
+# ---- Data validation ----
+pydantic>=2.6
+
+# ---- Date parsing ----
+python-dateutil>=2.9
+
+# ---- NLP (claim extraction) ----
+spacy>=3.7
+
+# ---- Google ADK ----
+google-adk>=0.4
+
+# ---- Environment variables ----
+python-dotenv>=1.0
+
+

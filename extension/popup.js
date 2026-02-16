@@ -56,9 +56,9 @@ sectionHeaders.forEach((btn) => {
    Converts API output into a stable, predictable UI state.
 ------------------------------------ */
 
-function renderAnalyzeResponse(data) {
+function renderExtractResponse(data) {
   // Ensures backend payload structure is visible during development
-  console.log("Analyze response:", data);
+  console.log("Extract response:", data);
 
   sourceValue.textContent = data.source ?? "Unknown";
   pubDateValue.textContent = data.publication_date ?? "Unknown";
@@ -69,9 +69,10 @@ function renderAnalyzeResponse(data) {
     claimsList.innerHTML = "";
     const claims = Array.isArray(data.claims) ? data.claims : [];
 
-    for (const claim of claims) {
+    for (const c of claims) {
       const li = document.createElement("li");
-      li.textContent = claim;
+      const id = c?.id ? `[${c.id}] ` : "";
+      li.textContent = `${id}${c?.text ?? ""}`.trim();
       claimsList.appendChild(li);
     }
   }
@@ -164,6 +165,22 @@ async function extractFromActiveTab() {
    Thin transport layer only. No business logic.
 ------------------------------------ */
 
+async function callExtractApi(payload) {
+  const response = await fetch("http://127.0.0.1:8000/extract", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`API error ${response.status}: ${text}`);
+  }
+
+  return await response.json();
+}
+
+// Why: Option A requires a second hop that forwards structured claims for agent analysis.
 async function callAnalyzeApi(payload) {
   const response = await fetch("http://127.0.0.1:8000/analyze", {
     method: "POST",
@@ -180,6 +197,7 @@ async function callAnalyzeApi(payload) {
 }
 
 
+
 /* ---------- USER FLOW ----------
    Enforces a linear, debounced analysis lifecycle.
 ------------------------------------ */
@@ -191,13 +209,11 @@ analyzeBtn.addEventListener("click", async () => {
 
     const extracted = await extractFromActiveTab();
 
-    // Diagnostics validate extraction before downstream processing
     if (extractStats) {
       extractStats.textContent =
         `Paragraphs: ${(extracted.text.match(/\n\n/g) || []).length + 1}` +
         ` | Characters: ${extracted.text.length}`;
     }
-
     if (extractPreview) {
       extractPreview.value = extracted.text || "";
     }
@@ -208,8 +224,23 @@ analyzeBtn.addEventListener("click", async () => {
       return;
     }
 
-    const result = await callAnalyzeApi(extracted);
-    renderAnalyzeResponse(result);
+    // Why: first call produces claim objects (with IDs) and normalized metadata.
+    const extractResult = await callExtractApi(extracted);
+    renderExtractResponse(extractResult);
+
+    // Why: second call forwards claim IDs to keep agent mapping deterministic.
+    const analyzePayload = {
+      url: extracted.url,
+      source: extractResult.source,
+      publication_date: extractResult.publication_date,
+      claims: extractResult.claims || [],
+    };
+
+    const analyzeResult = await callAnalyzeApi(analyzePayload);
+
+    // Why: analyze updates verdict section while claims list remains from extract.
+    verdictPill.textContent = analyzeResult.verdict ?? "Pending";
+    verdictSummary.textContent = analyzeResult.summary ?? "";
 
     setStatus("Done");
     analyzeBtn.disabled = false;
@@ -219,6 +250,7 @@ analyzeBtn.addEventListener("click", async () => {
     analyzeBtn.disabled = false;
   }
 });
+
 
 
 /* ---------- PLACEHOLDERS ----------

@@ -5,3 +5,7 @@ __pycache__/
 
 # macOS system files
 .DS_Store
+
+# Protect api key
+.env
+.env.*
