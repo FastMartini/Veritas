@@ -7,6 +7,16 @@ import re
 import spacy
 import hashlib
 
+# Why: ensures API key is available to ADK runtime.
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+# Why: isolate ADK dependency outside extraction logic.
+from my_agent.agent import root_agent
+import json
+
+
 
 # Load NLP resources once to keep request latency stable
 try:
@@ -200,9 +210,45 @@ def extract(req: ExtractRequest):
 
 @app.post("/analyze", response_model=AnalyzeResponse)
 def analyze(req: AnalyzeRequest):
-    # Agent integration comes next; this is a stable placeholder contract
-    return AnalyzeResponse(
-        ok=True,
-        verdict="Pending",
-        summary=f"Ready for agent. Received {len(req.claims)} claims.",
-    )
+
+    # Why: Prepare structured payload so agent reasoning is bounded and explicit.
+    agent_input = {
+        "source": req.source,
+        "publication_date": req.publication_date,
+        "claims": [
+            {"id": c.id, "text": c.text}
+            for c in req.claims
+        ],
+    }
+
+    # Why: Convert structured input into readable but deterministic prompt.
+    prompt = f"""
+    Source: {agent_input['source']}
+    Publication Date: {agent_input['publication_date']}
+
+    Claims:
+    {json.dumps(agent_input['claims'], indent=2)}
+    """
+
+    try:
+        # Why: ADK invocation must be isolated to prevent crashing FastAPI.
+        response = root_agent.run(prompt)
+
+        # ADK returns structured content in response.output
+        raw_text = response.output.strip()
+
+        parsed = json.loads(raw_text)
+
+        return AnalyzeResponse(
+            ok=True,
+            verdict=parsed.get("verdict", "Insufficient"),
+            summary=parsed.get("summary", "No summary provided."),
+        )
+
+    except Exception as e:
+        return AnalyzeResponse(
+            ok=True,
+            verdict="Insufficient",
+            summary=f"Agent error: {str(e)}",
+        )
+
