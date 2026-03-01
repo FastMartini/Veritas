@@ -224,16 +224,33 @@ analyzeBtn.addEventListener("click", async () => {
       return;
     }
 
-    // Why: first call produces claim objects (with IDs) and normalized metadata.
-    const extractResult = await callExtractApi(extracted);
+    // Why: /extract expects a specific schema. We shape the payload so the backend receives exactly what it expects.
+    const extractPayload = {
+      url: extracted.url,
+      title: extracted.title,
+      text: extracted.text,
+      published_at: extracted.published_at,
+      max_claims: 12,
+    };
+
+    const extractResult = await callExtractApi(extractPayload);
     renderExtractResponse(extractResult);
+
+    // Why: If no claims were detected, calling the agent adds noise and often returns unhelpful output.
+    if (!Array.isArray(extractResult.claims) || extractResult.claims.length === 0) {
+      verdictPill.textContent = "Insufficient";
+      verdictSummary.textContent = "No claims detected to analyze.";
+      setStatus("Done");
+      analyzeBtn.disabled = false;
+      return;
+    }
 
     // Why: second call forwards claim IDs to keep agent mapping deterministic.
     const analyzePayload = {
       url: extracted.url,
-      source: extractResult.source,
-      publication_date: extractResult.publication_date,
-      claims: extractResult.claims || [],
+      source: extractResult.source ?? "Unknown",
+      publication_date: extractResult.publication_date ?? "Unknown",
+      claims: extractResult.claims,
     };
 
     const analyzeResult = await callAnalyzeApi(analyzePayload);
