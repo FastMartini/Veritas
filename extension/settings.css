@@ -1,0 +1,144 @@
+:root {
+    --accent: rgb(226, 109, 79);
+    --bg: #f7f7f8;
+    --card: #ffffff;
+    --text: #1f1f1f;
+    --muted: #6b6b6b;
+    --line: #e6e6e6;
+  }
+  
+  /* Why: Dark mode on the settings page should match the popup page exactly. */
+  body.dark {
+    --bg: #111315;
+    --card: #181b1f;
+    --text: #f3f4f6;
+    --muted: #a1a1aa;
+    --line: #2b3138;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    width: 360px;
+    margin: 0;
+    padding: 12px;
+    background: var(--bg);
+    color: var(--text);
+    transition: background 0.16s ease, color 0.16s ease;
+  }
+  
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .backBtn {
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .pageTitle {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 650;
+  }
+  
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+  
+  .sectionTitle {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-top: 4px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  
+  .settingRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  
+  .settingRow:last-of-type {
+    border-bottom: 0;
+  }
+  
+  .settingLabel {
+    font-size: 13px;
+    color: var(--text);
+  }
+  
+  .note {
+    margin: 12px 0 0 0;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  
+  /* ---------- SWITCH ----------
+     Why: This creates the light-switch style toggle the user requested.
+  -------------------------------- */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 26px;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    background: #cfcfd4;
+    transition: 0.2s ease;
+    border-radius: 999px;
+  }
+  
+  .slider::before {
+    content: "";
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    top: 3px;
+    background: #ffffff;
+    transition: 0.2s ease;
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  }
+  
+  .switch input:checked + .slider {
+    background: var(--accent);
+  }
+  
+  .switch input:checked + .slider::before {
+    transform: translateX(20px);
+  }
