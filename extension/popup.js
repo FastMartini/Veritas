@@ -11,7 +11,7 @@ const analyzeBtn = document.getElementById("analyzeBtn");
 // Why: sectionHeaders enable collapsible UI sections.
 const sectionHeaders = document.querySelectorAll(".sectionHdr");
 
-// Why: settingsBtn is reserved for future configuration.
+// Why: settingsBtn now navigates to a dedicated settings page.
 const settingsBtn = document.getElementById("settingsBtn");
 
 // Why: These values display extracted metadata from the article.
@@ -38,6 +38,24 @@ const heroSection = document.getElementById("heroSection");
 // Why: These temporary diagnostics help validate extraction during development.
 const extractStats = document.getElementById("extractStats");
 const extractPreview = document.getElementById("extractPreview");
+const extractDebug = document.getElementById("extractDebug");
+
+// Why: These containers are the UI surfaces the user can hide from settings.
+const overviewSection = document.getElementById("overviewSection");
+const claimsSection = document.getElementById("claimsSection");
+
+
+/* ---------- SETTINGS MODEL ----------
+   Defaults ensure the popup has a complete configuration even on first install.
+------------------------------------ */
+
+// Why: Defaults make startup deterministic before anything has been stored.
+const DEFAULT_SETTINGS = {
+  darkMode: false,
+  showOverview: true,
+  showClaims: true,
+  showDebug: true,
+};
 
 
 /* ---------- UI STATE HELPERS ----------
@@ -88,10 +106,46 @@ function applyVerdictClass(verdictText) {
   verdictPill.classList.add("unclear");
 }
 
+// Why: Hidden sections should leave layout cleanly while preserving all DOM state and content.
+function setElementVisibility(element, shouldShow) {
+  if (!element) {
+    return;
+  }
+
+  element.classList.toggle("isHidden", !shouldShow);
+}
+
+// Why: Theme is applied at the body level so all color tokens update at once.
+function applyTheme(isDarkMode) {
+  document.body.classList.toggle("dark", Boolean(isDarkMode));
+}
+
+// Why: A single function applies the popup-facing settings that matter for this page.
+function applyPopupSettings(settings) {
+  applyTheme(settings.darkMode);
+  setElementVisibility(overviewSection, settings.showOverview);
+  setElementVisibility(claimsSection, settings.showClaims);
+  setElementVisibility(extractDebug, settings.showDebug);
+}
+
 // Why: Section headers are wired once so each panel can expand and collapse declaratively.
 sectionHeaders.forEach((btn) => {
   btn.addEventListener("click", () => toggleSection(btn));
 });
+
+
+/* ---------- SETTINGS STORAGE ----------
+   Storage helpers isolate persistence so the rest of the file stays focused on UI behavior.
+-------------------------------------- */
+
+// Why: This wraps chrome.storage in a Promise so settings can be awaited cleanly.
+function getStoredSettings() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(DEFAULT_SETTINGS, (items) => {
+      resolve(items);
+    });
+  });
+}
 
 
 /* ---------- RESPONSE RENDERING ----------
@@ -404,17 +458,28 @@ analyzeBtn.addEventListener("click", async () => {
 });
 
 
-/* ---------- PLACEHOLDERS ----------
-   Reserved hooks for future expansion.
------------------------------------- */
+/* ---------- NAVIGATION ----------
+   The popup page should hand off settings to a dedicated page instead of opening an inline panel.
+-------------------------------- */
 
-// Why: settingsBtn remains a visible placeholder for future settings work.
+// Why: A separate settings page creates a cleaner experience and allows more room for controls.
 settingsBtn.addEventListener("click", () => {
-  setStatus("Settings soon");
+  window.location.href = "settings.html";
 });
 
-// Why: Initial popup state should always be deterministic on load.
+
+/* ---------- INITIALIZATION ----------
+   Startup loads persisted preferences before the user interacts with the popup.
+------------------------------------ */
+
+// Why: The initial popup state should always be deterministic on load.
 setStatus("Idle");
 
 // Why: The initial verdict state should visually match the empty-state wording.
 applyVerdictClass("Unclear");
+
+// Why: Startup should restore the user's saved theme and visibility choices.
+document.addEventListener("DOMContentLoaded", async () => {
+  const settings = await getStoredSettings();
+  applyPopupSettings(settings);
+});

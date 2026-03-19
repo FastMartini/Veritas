@@ -20,6 +20,18 @@
   --right-bg: #fef2f2;
 }
 
+/* Why: Dark mode switches only variables so the rest of the stylesheet stays simple. */
+body.dark {
+  --bg: #111315;
+  --card: #181b1f;
+  --text: #f3f4f6;
+  --muted: #a1a1aa;
+  --line: #2b3138;
+  --left-bg: rgba(59, 130, 246, 0.14);
+  --center-bg: rgba(107, 114, 128, 0.18);
+  --right-bg: rgba(239, 68, 68, 0.14);
+}
+
 * {
   /* Why: Border-box sizing keeps widths and padding predictable across the popup layout. */
   box-sizing: border-box;
@@ -35,6 +47,7 @@ body {
   padding: 12px;
   background: var(--bg);
   color: var(--text);
+  transition: background 0.16s ease, color 0.16s ease;
 }
 
 /* ---------- HEADER ----------
@@ -48,33 +61,29 @@ body {
 }
 
 .brand {
-  /* Why: The brand block keeps the logo and title grouped as one visual unit. */
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .logoImg {
-  /* Why: Fixed icon sizing prevents distortion and visual jumping. */
   width: 16px;
   height: 16px;
   object-fit: contain;
 }
 
 .title {
-  /* Why: Slightly heavier title weight improves brand recall without dominating the popup. */
   font-size: 16px;
   margin: 0;
   font-weight: 650;
 }
 
 .pill {
-  /* Why: The status pill should look lightweight but still distinct from normal text. */
   font-size: 12px;
   padding: 4px 8px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: #fff;
+  background: var(--card);
 }
 
 /* ---------- PRIMARY SURFACE ----------
@@ -96,14 +105,12 @@ body {
 }
 
 .heroTitle {
-  /* Why: Slight emphasis helps the empty state read like a starting point. */
   font-size: 14px;
   font-weight: 650;
   margin-bottom: 4px;
 }
 
 .heroSub {
-  /* Why: Muted helper text prevents the empty state from feeling too loud. */
   font-size: 12px;
   color: var(--muted);
   line-height: 1.4;
@@ -126,18 +133,15 @@ body {
 }
 
 .primary:hover {
-  /* Why: A subtle hover state improves affordance without making the UI flashy. */
   opacity: 0.96;
   box-shadow: 0 2px 6px rgba(226, 109, 79, 0.18);
 }
 
 .primary:active {
-  /* Why: A small press effect makes the control feel responsive. */
   transform: translateY(1px);
 }
 
 .primary:disabled {
-  /* Why: Disabled styling should clearly communicate temporary lockout during analysis. */
   cursor: not-allowed;
   opacity: 0.6;
   box-shadow: none;
@@ -153,7 +157,6 @@ body {
 }
 
 .sectionHdr {
-  /* Why: Section headers should read as interactive without looking like heavy buttons. */
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -168,14 +171,19 @@ body {
 }
 
 .chev {
-  /* Why: A muted chevron keeps expansion affordance visible but secondary. */
   color: var(--muted);
   font-size: 12px;
 }
 
 .sectionBody {
-  /* Why: Slight top padding anchors expanded content under its header. */
   padding: 6px 0 0 0;
+}
+
+/* ---------- VISIBILITY HELPERS ----------
+   Why: Hidden sections should fully leave the layout without being removed from the DOM.
+---------------------------------------- */
+.isHidden {
+  display: none !important;
 }
 
 /* ---------- METADATA ROWS ----------
@@ -190,13 +198,11 @@ body {
 }
 
 .k {
-  /* Why: Labels should be visually quieter than values. */
   font-size: 12px;
   color: var(--muted);
 }
 
 .v {
-  /* Why: Values need slightly stronger weight so they read as the important part. */
   font-size: 12px;
   font-weight: 500;
   text-align: right;
@@ -217,9 +223,6 @@ body {
   font-size: 12px;
 }
 
-/* ---------- OPTIONAL LEANING STATES ----------
-   Why: These classes let popup.js visually distinguish left, center, and right later.
--------------------------------------------- */
 .verdict.left {
   border-color: color-mix(in srgb, var(--left) 45%, #ffffff);
   background: var(--left-bg);
@@ -240,7 +243,7 @@ body {
 
 .verdict.unclear {
   border-color: var(--line);
-  background: #fafafa;
+  background: color-mix(in srgb, var(--card) 92%, var(--bg));
   color: var(--muted);
 }
 
@@ -258,7 +261,6 @@ body {
 }
 
 #claimsList li {
-  /* Why: Compact list styling preserves readability in tight space. */
   font-size: 12px;
   margin: 6px 0;
   line-height: 1.4;
@@ -278,11 +280,10 @@ body {
    Why: Bias metrics need a subtle grouped appearance so they feel intentional, not raw debug output.
 ----------------------------------- */
 #signalsBody .row {
-  border-bottom: 1px solid #f1f1f1;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
 }
 
 #signalsBody .row:last-child {
-  /* Why: The last row should not draw an unnecessary separator line. */
   border-bottom: 0;
 }
 
@@ -290,7 +291,6 @@ body {
 #sourceBiasValue,
 #languageBiasValue,
 #framingBiasValue {
-  /* Why: Tabular numbers improve scanning and comparison of metric values. */
   font-variant-numeric: tabular-nums;
 }
 
@@ -305,7 +305,6 @@ body {
 }
 
 .linkBtn {
-  /* Why: Secondary actions should look lightweight but still clickable. */
   border: 0;
   background: transparent;
   color: var(--accent);
@@ -315,7 +314,6 @@ body {
 }
 
 .ver {
-  /* Why: Version text should stay visible but visually quiet. */
   font-size: 12px;
   color: var(--muted);
 }
@@ -328,18 +326,16 @@ body {
   border: 1px dashed var(--line);
   border-radius: 12px;
   padding: 8px;
-  background: #fcfcfc;
+  background: color-mix(in srgb, var(--card) 94%, var(--bg));
 }
 
 #extractStats {
-  /* Why: Extraction stats provide fast feedback without taking too much space. */
   font-size: 12px;
   color: var(--muted);
   margin-bottom: 6px;
 }
 
 #extractPreview {
-  /* Why: The preview helps verify extracted content while protecting the popup layout from resizing. */
   width: 100%;
   height: 140px;
   resize: none;
@@ -348,6 +344,6 @@ body {
   padding: 8px;
   font-size: 12px;
   color: var(--text);
-  background: #fff;
+  background: var(--card);
   line-height: 1.35;
 }
