@@ -1,46 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Core metadata required for a Chrome extension popup -->
+    <!-- Why: Core metadata is required for a Chrome extension popup. -->
     <meta charset="UTF-8" />
+
+    <!-- Why: This ensures the popup scales correctly on different screen sizes. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Why: The popup title appears in the extension context. -->
     <title>Veritas</title>
 
-    <!-- Popup-specific styling (isolated from page CSS) -->
+    <!-- Why: Popup styling is isolated from the active webpage. -->
     <link rel="stylesheet" href="popup.css" />
   </head>
 
   <body>
-    <!-- Persistent header for branding and system state -->
+    <!-- Why: The header provides branding and a live system-state indicator. -->
     <header class="top">
       <div class="brand">
-        <!-- Visual brand anchor to reinforce trust and identity -->
+        <!-- Why: The logo reinforces product identity and trust. -->
         <img src="icons/48.png" alt="Veritas logo" class="logoImg" />
+
+        <!-- Why: The title anchors the product name in the popup UI. -->
         <h1 class="title">Veritas</h1>
       </div>
 
-      <!-- Real-time system status indicator driven by popup.js -->
+      <!-- Why: popup.js updates this pill to reflect pipeline state. -->
       <span id="statusPill" class="pill">Idle</span>
     </header>
 
-    <!-- Primary interaction surface for analysis results -->
+    <!-- Why: The main card contains the full user workflow and results surface. -->
     <main class="card">
-      <!-- Initial empty-state shown before first successful analysis -->
+      <!-- Why: This empty state appears before the first successful analysis. -->
       <div class="hero" id="heroSection">
         <div class="heroTitle">No analysis yet</div>
-        <div class="heroSub">Open an article, then run analysis.</div>
+        <div class="heroSub">Open a news article, then estimate its political leaning.</div>
       </div>
 
-      <!-- Single entry point for triggering extraction + analysis -->
-      <button id="analyzeBtn" class="primary">Analyze Page</button>
+      <!-- Why: This is the single entry point for extraction plus leaning analysis. -->
+      <button id="analyzeBtn" class="primary">Analyze Leaning</button>
 
-      <!-- Temporary diagnostics to verify client-side extraction correctness -->
+      <!-- Why: These diagnostics help verify extraction during development. -->
       <div id="extractDebug">
         <div id="extractStats"></div>
         <textarea id="extractPreview" readonly></textarea>
       </div>
 
-      <!-- High-level metadata about the analyzed article -->
+      <!-- Why: This section surfaces basic metadata about the analyzed article. -->
       <section class="section">
         <button
           class="sectionHdr"
@@ -52,7 +58,6 @@
           <span class="chev" aria-hidden="true">▾</span>
         </button>
 
-        <!-- Populated entirely from API response -->
         <div id="overviewBody" class="sectionBody" hidden>
           <div class="row">
             <span class="k">Source</span>
@@ -71,7 +76,7 @@
         </div>
       </section>
 
-      <!-- Ranked factual statements extracted from the article body -->
+      <!-- Why: Claims remain useful because they show which article statements fed the analysis. -->
       <section class="section">
         <button
           class="sectionHdr"
@@ -83,13 +88,12 @@
           <span class="chev" aria-hidden="true">▾</span>
         </button>
 
-        <!-- Ordered list preserves relative importance after ranking -->
         <div id="claimsBody" class="sectionBody" hidden>
           <ol id="claimsList"></ol>
         </div>
       </section>
 
-      <!-- Human-readable summary intended to explain system judgment -->
+      <!-- Why: This section explains the final leaning estimate in plain language. -->
       <section class="section">
         <button
           class="sectionHdr"
@@ -97,29 +101,63 @@
           aria-expanded="false"
           data-target="verdictBody"
         >
-          <span>Verdict Summary</span>
+          <span>Leaning Summary</span>
           <span class="chev" aria-hidden="true">▾</span>
         </button>
 
-        <!-- Verdict remains provisional until agent-based analysis is wired -->
         <div id="verdictBody" class="sectionBody" hidden>
-          <div id="verdictPill" class="verdict">Pending</div>
+          <div id="verdictPill" class="verdict">Unclear</div>
           <div id="verdictSummary" class="hint">
-            Analysis not yet run.
+            Political leaning analysis not yet run.
+          </div>
+        </div>
+      </section>
+
+      <!-- Why: This section exposes the three internal bias signals plus confidence so the result feels less like a black box. -->
+      <section class="section">
+        <button
+          class="sectionHdr"
+          type="button"
+          aria-expanded="false"
+          data-target="signalsBody"
+        >
+          <span>Bias Signals</span>
+          <span class="chev" aria-hidden="true">▾</span>
+        </button>
+
+        <div id="signalsBody" class="sectionBody" hidden>
+          <div class="row">
+            <span class="k">Confidence</span>
+            <span id="confidenceValue" class="v">0%</span>
+          </div>
+
+          <div class="row">
+            <span class="k">Source bias</span>
+            <span id="sourceBiasValue" class="v">0.00</span>
+          </div>
+
+          <div class="row">
+            <span class="k">Language bias</span>
+            <span id="languageBiasValue" class="v">0.00</span>
+          </div>
+
+          <div class="row">
+            <span class="k">Framing bias</span>
+            <span id="framingBiasValue" class="v">0.00</span>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- Secondary actions and versioning -->
+    <!-- Why: Footer keeps secondary actions and versioning visible but separate from analysis. -->
     <footer class="foot">
       <button id="settingsBtn" class="linkBtn" type="button">
         Settings
       </button>
-      <span class="ver">v0.3.1</span>
+      <span class="ver">v0.4.0</span>
     </footer>
 
-    <!-- Popup controller logic -->
+    <!-- Why: popup.js controls extraction, API calls, and UI updates. -->
     <script src="popup.js"></script>
   </body>
 </html>
