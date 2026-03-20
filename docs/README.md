@@ -87,8 +87,9 @@ This project is developed by a team of three members: Diego Martinez, Christian 
 | Team Member         | Role                      | Responsibilities |
 |---------------------|---------------------------|------------------|
 | Diego Martinez      | Team Lead / Developer     | Organizes Scrum meetings. Coordinates sprint planning, reviews, and retrospectives. Manages task assignments. Oversees system architecture. Contributes to development of the browser extension, FastAPI backend, and overall integration. |
-| Christian Cevallos  | Developer                 | Implements features within assigned sprints. Works on backend logic, claim processing, and extension functionality. Participates in testing and debugging cycles. |
-| Justin Cardenas     | Developer                 | Contributes to backend and extension development. Assists with feature implementation, testing, and sprint deliverables. Supports integration and refinement tasks. |
+| Christian Cevallos  | Developer                 | Documents Scrum meetings.  sprint planning, reviews, and retrospectives. Participates in testing and debugging cycles. |
+| Justin Cardenas     | Developer                 | Contributes to backend and frontend development. Assists with feature implementation, testing, and sprint deliverables. |
+| Jhonny Felix   | Developer                 | Contributes to frontend development. Assists with feature implementation, testing, and sprint deliverables. |
 
 ## 3.2 Team Methodology 
 
