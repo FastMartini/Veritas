@@ -5,11 +5,14 @@
   "version": "1.0.0",
 
   "action": {
-    "default_title": "Veritas",
-    "default_popup": "popup.html"
+    "default_title": "Veritas"
   },
 
-  "permissions": ["storage", "activeTab", "scripting"],
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+
+  "permissions": ["sidePanel", "storage", "activeTab", "scripting"],
 
   "host_permissions": ["http://*/*", "https://*/*"],
 
