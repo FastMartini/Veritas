@@ -17,6 +17,7 @@
         "fakenews",
         "fastapi",
         "federalreserve",
+        "genai",
         "healthdata",
         "httpx",
         "icij",
@@ -46,6 +47,7 @@
         "theconversation",
         "undp",
         "usgs",
+        "uvicorn",
         "Welle",
         "worldbank"
     ]
