@@ -1,762 +1,500 @@
 # Abstract
-This Capstone project implements an automated fake news analyzer designed to assess the credibility of online articles in real time. Veritas functions as a browser extension that extracts the visible text of an article, identifies key claims, and forwards those claims to an external analysis agent. The system uses a Chrome extension for user-side interaction, a FastAPI backend for claim extraction and communication, and an ADK based Veritas Agent that conducts evidence retrieval and produces verdicts, truth scores, bias scores, and short explanatory summaries. Development follows the Unified Software Development Process, progressing through iterative and incremental cycles that emphasize requirements analysis, architectural design, implementation, and continuous evaluation. This structured approach supports rapid validation of the minimum viable product, clear separation of responsibilities across components, and a scalable foundation for future enhancements.
+This Capstone project implements an automated political leaning analysis system designed to evaluate online news articles in real time. Veritas operates as a Chrome browser extension that extracts visible article text, derives ranked claim candidates, and estimates the article's political framing using an AI-assisted backend pipeline. The system uses a FastAPI backend for text processing, metadata normalization, claim extraction, and leaning analysis, while a Gemini-powered analysis step estimates political orientation based on source bias, language bias, and framing bias. Rather than functioning as a fake news detector or truth-verification engine, the current Veritas model focuses on identifying editorial leaning and presentation patterns within political content. Development follows the Unified Software Development Process, allowing the system to evolve iteratively through structured requirements, architecture, implementation, and testing.
 
 # 1. Introduction
-Online misinformation continues to spread at a pace that makes it difficult for readers to determine whether the claims in an article are factual, misleading, or intentionally biased. Many users do not have the time, expertise, or resources to independently research each claim they encounter, and traditional fact checking services often operate too slowly to keep up with fast moving content. Veritas addresses this gap by providing an automated, real time layer of analysis directly within the browser. By extracting claims from an article, evaluating them through a research driven agent, and displaying verdicts and scores in place, Veritas helps users quickly understand the reliability of the information in front of them. The goal is to give readers immediate clarity, reduce the influence of unverified or deceptive claims, and support more informed decision making without requiring them to leave the page or perform their own research.
+Digital news consumption has made it easier than ever for readers to access political information quickly, but it has also made it harder to recognize how language, framing, and source reputation shape interpretation. Many existing tools focus on determining whether a statement is true or false, but political articles often influence readers through subtler mechanisms such as selective emphasis, emotionally charged language, or one-sided framing. These factors may not make an article factually false, yet they still affect how the content is perceived.
+
+Veritas addresses this problem by shifting away from fake news detection and toward political leaning estimation. Instead of judging whether an article is simply true or false, Veritas analyzes the article’s source, wording, and framing to estimate whether the content appears Left-leaning, Center-left, Center, Center-right, Right-leaning, or Unclear. This allows the system to provide readers with structured context about how political information is being presented, while still exposing the article metadata and extracted claims that informed the result.
 
 ## 1.1 Purpose of the System
-The purpose of the Veritas system is to provide users with an immediate, research-supported assessment of the credibility of claims within online articles.
+The purpose of the Veritas system is to provide users with a real-time estimate of an article’s political leaning by analyzing article metadata, extracted claims, and broader textual framing signals.
 
 ## 1.2 Scope of the System
-
-Figure 1 shows the high level workflow of the system. When a user clicks the Veritas icon while viewing an article, the browser extension captures the visible article text and page address and sends this data to a FastAPI service. The FastAPI service performs basic claim extraction on the article text and converts each claim into a short, structured statement. These statements are then forwarded to the Veritas Agent, which performs research, compares each claim with available evidence, and returns a verdict, truthfulness score, bias score, and brief explanation for every claim. FastAPI receives these results, normalizes them into a simple response format, and returns them to the extension. Finally, the extension annotates the original article view with visual indicators and tooltips so that the user can see credibility information in context.
+Figure 1 shows the current high-level workflow of Veritas. When a user opens the extension while viewing a news article, the popup extracts the page URL, article title, visible article text, and publication date when available. That information is first sent to the `/extract` endpoint, which normalizes the date, identifies the article source, and ranks candidate claims using lightweight natural language processing. The extracted claims, together with the article title and article text, are then sent to the `/analyze` endpoint. The backend forwards this structured information to a Gemini-based analysis step, which estimates political leaning using three primary signals: source bias, language bias, and framing bias. The backend then returns a verdict, summary, confidence value, and bias signal scores to the extension, which displays them in the popup UI.
 
 ### Figure 1.
-
 ```mermaid
 flowchart LR
 
-A[User clicks Veritas icon] --> B[Extension captures article text and URL]
-B --> C[Extension sends JSON POST to FastAPI]
-C --> D[FastAPI validates request]
-D --> E[Claim extraction identifies and normalizes claims]
-E --> F[FastAPI packages claims for ADK agent]
-F --> G[FastAPI sends claims to Veritas Agent]
-G --> H[ADK agent researches and produces verdicts and scores]
-H --> I[FastAPI receives and normalizes results]
-I --> J[FastAPI returns JSON results to extension]
-J --> K[Extension injects badges into the article]
-K --> L[User views annotated article]
+A[User clicks Veritas icon] --> B[Popup extracts URL title article text and publication metadata]
+B --> C[Extension sends article payload to FastAPI /extract]
+C --> D[FastAPI normalizes metadata and extracts ranked claims]
+D --> E[Extension sends article context plus claims to FastAPI /analyze]
+E --> F[Gemini-based analyzer estimates political leaning]
+F --> G[Backend returns verdict summary confidence and bias signals]
+G --> H[Popup renders overview claims leaning summary and bias values]
 ```
 
 ## 1.3 Development Methodology (USDP)
+The development of Veritas follows the Unified Software Development Process. This methodology is appropriate because Veritas combines multiple interacting components, including a browser extension interface, a FastAPI backend, a lightweight NLP extraction stage, and an AI-assisted leaning classifier. USDP supports the project through iterative development cycles while preserving a strong architectural structure.
 
-The development of Veritas follows the Unified Software Development Process (USDP), a use-case driven, iterative, and architecture-centered methodology well suited for complex systems with multiple interacting components. USDP provides a structured approach that organizes development into clearly defined phases while allowing continuous refinement as the project evolves. This framework supports the needs of Veritas, which integrates a browser extension, a backend service, and an external analysis agent, each with distinct responsibilities.
+During the Inception Phase, the system’s original direction was reevaluated and narrowed into a more specific political leaning analysis tool. This helped define the minimum viable product around article extraction, claim identification, and leaning estimation rather than generic misinformation detection.
 
-The Inception Phase establishes the overall vision of Veritas, identifies the core problem of misinformation, and defines the minimum viable product. During this phase, the project clarifies its primary use case: enabling users to receive real time credibility evaluations on claims found in online articles.
+During the Elaboration Phase, the team designed the architecture connecting the popup interface, extraction endpoint, analysis endpoint, and Gemini model call. At this stage, special attention was given to how article text would be collected, how candidate claims would be ranked, how bias signals would be represented numerically, and how the results would be displayed clearly in the popup.
 
-The Elaboration Phase focuses on the architecture of the system. Here the team designs the interactions among the browser extension, FastAPI backend, and Veritas Agent. Major risks such as claim extraction accuracy, agent communication, and DOM annotation strategies are analyzed and addressed. This phase produces the foundational models, including workflow diagrams, architectural views, and class or component outlines that guide the remaining development.
+During the Construction Phase, the system was implemented incrementally. The extension was built to capture article content from the active tab, the backend was built to normalize and extract structured claims, and the analysis stage was designed to classify political leaning while returning confidence and signal values in a strict JSON format.
 
-The Construction Phase involves iterative implementation of Veritas in small, testable increments. Each iteration builds upon previous work, adding or refining features such as article capture, claim extraction, API communication, or result rendering. Testing is continuous throughout this phase, ensuring that components function both individually and as part of the full system flow.
-
-The Transition Phase prepares the system for deployment and user evaluation. This includes packaging the browser extension, hosting the FastAPI service, validating communication with the Veritas Agent, and ensuring that the user interface accurately reflects the outputs of the analysis. Feedback from early testers informs final adjustments before full release.
-
-Using USDP ensures that Veritas is developed with a strong architectural foundation, clear understanding of risks, and consistent refinement through iterative cycles. It supports the project’s technical complexity and enables the team to deliver a functional, extensible system aligned with the goals defined in the early phases.
+During the Transition Phase, the focus shifts toward validation, usability testing, and refinement of how leaning results are presented. This includes improving extraction quality, tuning prompts, clarifying limitations, and ensuring that users understand the output as an estimate of editorial leaning rather than a definitive political fact.
 
 ### Figure 2.
 ```mermaid
 flowchart LR
 
-A[Inception Phase<br>Define vision and MVP] --> B[Elaboration Phase<br>Design architecture and address risks]
-B --> C[Construction Phase<br>Iterative implementation and testing]
-C --> D[Transition Phase<br>Deployment, validation, and user feedback]
+A[Inception Phase<br>Define political-leaning analysis goal and MVP] --> B[Elaboration Phase<br>Design popup backend extraction and analysis architecture]
+B --> C[Construction Phase<br>Implement extraction leaning analysis and UI rendering]
+C --> D[Transition Phase<br>Validate outputs refine UX and test usability]
 ```
+
 # 2. Current System
+Most users currently rely on one of the following approaches when trying to understand the political orientation of an online article:
 
-Most people currently rely on three approaches to evaluate the credibility of online content:
+1. **Personal Interpretation:**  
+Readers manually judge tone, wording, and framing on their own. This is subjective, inconsistent, and often influenced by the reader’s own assumptions.
 
-1. **Manual Verification:**
-Readers independently search multiple sources, compare information, and try to determine whether a claim is true. This process is slow, inconsistent, and depends heavily on the reader’s skill and available time.
+2. **Source Reputation Heuristics:**  
+Some readers rely only on the publisher’s reputation or public image to decide whether an article leans left or right. This can be useful, but it ignores the actual wording and framing of a specific article.
 
-2. **External Fact-Checking Websites:**
-Users leave the article, search fact-checking platforms, and hope the specific claim has already been reviewed. These services cannot keep up with the volume of new content and rarely provide real-time analysis.
+3. **Fact-Checking Tools:**  
+Traditional fact-checking systems are designed to verify factual claims, not estimate political presentation or editorial slant. As a result, they do not directly answer whether an article is politically framed in a particular direction.
 
-3. **Passive Browser Notifications or Plugins:**
-Some tools flag websites with low reliability scores, but they evaluate at the domain level, not the individual claims inside an article. These tools do not break down truthfulness or bias on a sentence-by-sentence basis.
+Veritas improves on these approaches in several ways:
 
-Veritas improves on these systems in several ways:
+1. **Article-Level Leaning Estimation:**  
+Instead of judging only the domain or only isolated facts, Veritas evaluates the full article context, including the title, article text, and extracted claims.
 
-1. **Real-Time In-Article Claim Analysis:**
-Instead of checking a whole website or asking users to look elsewhere, Veritas analyzes the specific claims inside the article while the user is reading it.
+2. **Multi-Signal Analysis:**  
+The system breaks the estimate into source bias, language bias, and framing bias, making the output easier to interpret and less opaque.
 
-2. **Automated Evidence Retrieval and Scoring:**
-The system uses a research-driven agent that compares each claim to external evidence and produces both a categorical verdict and numerical scores, giving users more detail than generic reliability labels.
+3. **Structured Claim Extraction:**  
+Before analysis, Veritas identifies ranked claim candidates from the article so the system preserves the most information-dense statements for downstream processing.
 
-3. **Contextual Annotation:**
-Results are embedded directly into the article using badges and tooltips, allowing users to see which claims are trustworthy without leaving the page.
-
-4. **Faster and More Scalable Than Manual Fact-Checking:**
-The workflow reduces reliance on human reviewers and allows for immediate evaluation of new or rapidly spreading content.
+4. **Immediate In-Browser Feedback:**  
+Users do not need to leave the article to get a leaning estimate. Results are shown directly in the popup interface.
 
 # 3. Project Plan
+This project is developed by a team that includes Diego Martinez, Christian Cevallos, Justin Cardenas, and Jhonny Felix. Diego serves as team lead and active developer, coordinating Scrum activities, defining iteration goals, and helping guide overall architecture. The team follows a Scrum-based structure with short iterative cycles, allowing the project to evolve through continuous feedback and refinement.
 
-This project is developed by a team of three members: Diego Martinez, Christian Cevallos, and Justin Cardenas. Diego serves as both the team lead and an active developer. Christian and Justin focus on development tasks. The team follows a Scrum based planning structure in which work is divided into short iterations that allow continuous feedback and refinement. Diego is responsible for organizing Scrum meetings, defining iteration goals, guiding task assignments, and ensuring that progress aligns with the system vision. Each team member contributes to feature development, testing, and integration within the FastAPI backend, the browser extension, and the Veritas Agent workflow. The team conducts regular stand ups to review accomplishments, identify blockers, and plan next steps. Sprint planning sessions determine feature priorities, sprint reviews track completed functionality, and retrospectives help the team refine its processes. This structure supports a consistent pace of delivery, clear communication, and effective risk management throughout the development cycle.
+The current development focus is no longer centered on fake news classification. Instead, the project plan emphasizes three technical goals: improving article extraction reliability, strengthening the quality of political leaning estimation, and presenting the results in a way that is understandable and transparent to users. This includes continued refinement of prompt design, backend validation, popup rendering, and settings support.
 
 ## 3.1 Project Organization
 
-| Team Member         | Role                      | Responsibilities |
-|---------------------|---------------------------|------------------|
-| Diego Martinez      | Team Lead / Developer     | Organizes Scrum meetings. Coordinates sprint planning, reviews, and retrospectives. Manages task assignments. Oversees system architecture. Contributes to development of the browser extension, FastAPI backend, and overall integration. |
-| Christian Cevallos  | Developer                 | Implements features within assigned sprints. Works on backend logic, claim processing, and extension functionality. Participates in testing and debugging cycles. |
-| Justin Cardenas     | Developer                 | Contributes to backend and extension development. Assists with feature implementation, testing, and sprint deliverables. Supports integration and refinement tasks. |
+| Team Member         | Role                  | Responsibilities |
+|---------------------|-----------------------|------------------|
+| Diego Martinez      | Team Lead / Developer | Organizes Scrum meetings, coordinates sprint planning and reviews, guides architecture, and contributes to backend and extension development. |
+| Christian Cevallos  | Developer             | Assists with implementation, documentation, testing, and debugging. |
+| Justin Cardenas     | Developer             | Contributes to frontend and backend development, feature implementation, and sprint deliverables. |
+| Jhonny Felix        | Developer             | Assists with frontend development, integration tasks, testing, and sprint deliverables. |
 
-## 3.2 Team Methodology 
+## 3.2 Team Methodology
 
 | Methodology Element | Description |
 |---------------------|-------------|
-| Development Model   | Scrum based iterative development with short, structured sprints. |
-| Meetings            | Diego leads daily stand ups, sprint planning, sprint reviews, and retrospectives. |
-| Work Allocation     | Tasks are assigned per sprint based on priority and team workload. |
-| Collaboration       | All members participate in feature development, testing, and integration. |
+| Development Model   | Scrum-based iterative development with short structured sprints |
+| Meetings            | Daily standups, sprint planning, sprint reviews, and retrospectives |
+| Work Allocation     | Tasks assigned by sprint priority, feature needs, and team workload |
+| Collaboration       | Shared responsibility across extension UI, backend processing, and testing |
 
 ## 3.3 Hardware Requirements
 
-| Component        | Minimum Requirement                                   | Recommended Requirement                                   | Purpose                                 |
-|-----------------|--------------------------------------------------------|----------------------------------------------------------|-----------------------------------------|
-| CPU             | Dual core processor                                   | CPU with four or more cores                             | Running browser, IDE, FastAPI server    |
-| RAM             | 8 GB                                                  | 16 GB or more                                           | Smooth multitasking during development  |
-| Storage         | 256 GB free disk space                                | 512 GB or more                                          | Source code, dependencies, logs         |
-| Network         | Stable broadband internet connection                  | High speed connection                                   | Agent calls, dependency downloads       |
-| Display         | Single monitor with 1080p resolution                  | Dual monitors with 1080p or higher resolution           | Viewing code, browser, and logs at once |
-| Test Devices    | One desktop or laptop running a supported browser     | Multiple machines or virtual machines for cross testing | Verifying extension behavior            |
-
+| Component    | Minimum Requirement                       | Recommended Requirement                      | Purpose |
+|--------------|--------------------------------------------|----------------------------------------------|---------|
+| CPU          | Dual-core processor                        | Four-core or better                           | Running browser, local API server, and development tools |
+| RAM          | 8 GB                                       | 16 GB or more                                 | Smooth local development and testing |
+| Storage      | 256 GB free disk space                     | 512 GB or more                                | Codebase, dependencies, logs, and environment files |
+| Network      | Stable broadband internet                  | High-speed internet                           | Gemini API access and dependency installation |
+| Display      | Single 1080p monitor                       | Dual-monitor setup                            | Simultaneous coding, debugging, and browser testing |
+| Test Device  | Desktop or laptop with Chrome              | Multiple test environments if available       | Verifying extension behavior |
 
 ## 3.4 Software Requirements
 
-| Category              | Software / Tool                       | Version or Equivalent          | Usage                                           |
-|-----------------------|---------------------------------------|--------------------------------|-------------------------------------------------|
-| Operating System      | Windows, macOS, or Linux              | Recent stable release          | Development environment                         |
-| Web Browser           | Google Chrome                         | Current stable version         | Running and testing the browser extension       |
-| Browser Dev Tools     | Chrome Developer Tools                | Built in                       | Inspecting DOM, debugging the extension         |
-| Programming Language  | Python                                | Version 3.10 or later          | FastAPI backend and integration with ADK        |
-| Backend Framework     | FastAPI                               | Current stable version         | REST API that connects extension and agent      |
-| Package Manager       | pip                                   | Current stable version         | Installing Python dependencies                  |
-| Agent Platform        | Google Cloud ADK or equivalent        | Current environment version    | Veritas analysis agent that evaluates claims    |
-| Extension Stack       | JavaScript, HTML, CSS                 | ES6 or later                   | Building the Chrome extension UI and logic      |
-| Node Ecosystem        | Node.js and npm or yarn               | Current LTS                    | Tooling, bundling, and optional build scripts   |
-| IDE or Editor         | VS Code, IntelliJ, PyCharm, or similar| Current stable version         | Writing and managing code                       |
-| Version Control       | Git                                   | Current stable version         | Source control and collaboration                |
-| Repository Hosting    | GitHub or similar                     | Web account                    | Remote repository and issue tracking            |
-| API Testing Tools     | curl or REST client plugin            | Any modern version             | Testing FastAPI endpoints manually              |
-| Documentation Tools   | Markdown and Mermaid support          | GitHub native                  | Project documentation and workflow diagrams     |
+| Category             | Software / Tool              | Version or Equivalent     | Usage |
+|----------------------|------------------------------|---------------------------|-------|
+| Operating System     | Windows, macOS, or Linux     | Recent stable release     | Development environment |
+| Web Browser          | Google Chrome                | Current stable version    | Running the extension popup |
+| Browser Dev Tools    | Chrome Developer Tools       | Built in                  | Inspecting popup behavior and page extraction |
+| Programming Language | Python                       | 3.10 or later             | Backend services and analysis pipeline |
+| Backend Framework    | FastAPI                      | Current stable version    | `/extract` and `/analyze` API endpoints |
+| NLP Library          | spaCy                        | Current compatible version| Sentence segmentation and claim extraction |
+| Date Parsing         | python-dateutil              | Current compatible version| Publication date normalization |
+| Environment Loader   | python-dotenv                | Current compatible version| Loading API keys from `.env` |
+| AI SDK               | google.genai                 | Current compatible version| Gemini model communication |
+| Data Validation      | Pydantic                     | Current stable version    | Request and response schemas |
+| Extension Stack      | JavaScript, HTML, CSS        | ES6 or later              | Popup UI and client-side extraction |
+| Version Control      | Git                          | Current stable version    | Source control |
+| Repository Hosting   | GitHub or similar            | Web account               | Collaboration and documentation |
 
 # 4. Use Cases
 
 ## 4.1 Use Case 1 – Launch Extension on Article
 **Use Case ID:** `VER-MVP-001-LaunchExtension`  
-**Level:** System-level end-to-end  
+**Level:** System-level end-to-end
 
 **User Story:**  
-As a news reader, I want to launch Veritas while viewing an article so that I can request in-place credibility analysis.
-
----
+As a reader, I want to open Veritas while viewing a news article so that I can estimate the article’s political leaning.
 
 **Actor:**  
 User
 
 **Pre-Conditions:**  
 - Veritas extension is installed and enabled  
-- User is viewing a supported article page  
-- Extension has permission to run on the site  
+- User is viewing a supported webpage  
+- Extension has permission to access the active tab  
 
 **Trigger:**  
 User clicks the Veritas extension icon.
 
 **System Behavior:**  
-1. Extension opens its interface  
-2. Extension verifies the current page is eligible for analysis  
-3. Analysis session is initialized  
+1. The popup opens  
+2. The interface initializes in an idle state  
+3. The user is presented with the option to analyze the article  
 
 **Post-Conditions:**  
-- An analysis session has begun for the active article  
+- The extension is ready to begin extraction and analysis  
 
 ---
 
-## 4.2 Use Case 2 – Parse and Validate Article URLs
-**Use Case ID:** `VER-MVP-002-ParseArticleUrl`  
-**Level:** System-level data processing  
-
-**Actor:**  
-System
-
-**System Behavior:**  
-1. Accepts a user-provided article URL  
-2. Parses the URL to extract relevant components  
-3. Validates the URL before analysis begins  
-
-**Post-Conditions:**  
-- A valid, structured URL is available for downstream processing  
-
----
-
-## 4.3 Use Case 3 – Capture Article Publication Date
-**Use Case ID:** `VER-MVP-003-CapturePublicationDate`  
-**Level:** Internal system process  
+## 4.2 Use Case 2 – Extract Article Content from Active Tab
+**Use Case ID:** `VER-MVP-002-ExtractArticleContent`  
+**Level:** Internal system process
 
 **Actor:**  
 Veritas Browser Extension
 
 **System Behavior:**  
-1. Searches metadata for publication timestamps  
-2. Parses structured data timestamps  
-3. Attempts visible date extraction  
-4. Normalizes the date  
-5. Attaches publication date to metadata  
+1. Queries the active browser tab  
+2. Extracts the page URL and title  
+3. Locates the article body using semantic containers such as `article` or `main`  
+4. Collects visible paragraph text  
+5. Attempts to collect publication metadata from page metadata fields  
 
 **Post-Conditions:**  
-- Publication date is captured or marked unavailable  
+- Article content and metadata are packaged for backend extraction  
 
 ---
 
-## 4.4 Use Case 4 – Format Publication Date
-**Use Case ID:** `VER-MVP-004-FormatPublicationDate`  
-**Level:** System-level data normalization  
-
-**Actor:**  
-System
-
-**System Behavior:**  
-1. Receives raw publication date  
-2. Converts date to YYYY-MM-DD format  
-3. Ensures consistency across UI and storage  
-
-**Post-Conditions:**  
-- Publication dates are uniformly formatted  
-
----
-
-## 4.5 Use Case 5 – Capture Article Text
-**Use Case ID:** `VER-MVP-005-CaptureArticleText`  
-**Level:** Internal system process  
-
-**Actor:**  
-Veritas Browser Extension
-
-**System Behavior:**  
-1. Identifies article container  
-2. Extracts visible article text  
-3. Removes non-article elements  
-4. Captures URL and metadata  
-5. Prepares data for backend submission  
-
-**Post-Conditions:**  
-- Cleaned article text is ready  
-
----
-
-## 4.6 Use Case 6 – Send Article Data to Backend
-**Use Case ID:** `VER-MVP-006-SendArticleDataToBackend`  
-**Level:** Internal system process  
-
-**Actor:**  
-Veritas Browser Extension
-
-**System Behavior:**  
-1. Forms JSON payload  
-2. Sends POST request to FastAPI  
-3. Updates UI to processing state  
-
-**Post-Conditions:**  
-- Backend receives article data  
-
----
-
-## 4.7 Use Case 7 – Validate Incoming Article Data
-**Use Case ID:** `VER-MVP-007-ValidateArticleData`  
-**Level:** Internal system process  
+## 4.3 Use Case 3 – Extract Ranked Claims
+**Use Case ID:** `VER-MVP-003-ExtractClaims`  
+**Level:** Internal system process
 
 **Actor:**  
 FastAPI Backend
 
 **System Behavior:**  
-1. Validates required fields  
-2. Rejects malformed payloads  
-3. Forwards valid data  
+1. Receives article text from the extension  
+2. Normalizes whitespace and removes boilerplate lines  
+3. Segments the article into sentences using spaCy  
+4. Filters for claim-like sentences  
+5. Scores and ranks candidate claims  
+6. Returns stable claim identifiers and claim metadata  
 
 **Post-Conditions:**  
-- Payload accepted or rejected  
+- Ranked extracted claims are available for display and analysis  
 
 ---
 
-## 4.8 Use Case 8 – Extract Claims from Article Text
-**Use Case ID:** `VER-MVP-008-ExtractClaims`  
-**Level:** Internal system process  
-
-**Actor:**  
-FastAPI Claim Extraction Module
-
-**System Behavior:**  
-1. Splits text into candidate sentences  
-2. Identifies claims  
-3. Normalizes claims  
-4. Assigns claim identifiers  
-
-**Post-Conditions:**  
-- Structured claim list prepared  
-
----
-
-## 4.9 Use Case 9 – Display Claim Count in Popup
-**Use Case ID:** `VER-MVP-009-DisplayClaimCount`  
-**Level:** System-level UI feedback  
-
-**User Story:**  
-As a user, I want to see how many claims were extracted so that I understand the scope of the analysis.
-
----
-
-**Actor:**  
-Veritas Browser Extension
-
-**Pre-Conditions:**  
-- Claim extraction has completed  
-
-**Trigger:**  
-Claims are successfully extracted  
-
-**System Behavior:**  
-1. Counts total extracted claims  
-2. Displays claim count in popup UI  
-
-**Post-Conditions:**  
-- Claim count is visible to the user  
-
----
-
-## 4.10 Use Case 10 – Display Extracted Claims in Popup
-**Use Case ID:** `VER-MVP-010-DisplayExtractedClaims`  
-**Level:** System-level UI interaction  
-
-**User Story:**  
-As a user, I want to view the extracted claims so that I know what statements are being analyzed.
-
----
-
-**Actor:**  
-Veritas Browser Extension
-
-**Pre-Conditions:**  
-- Claims have been extracted  
-
-**Trigger:**  
-User views claim list in popup  
-
-**System Behavior:**  
-1. Renders extracted claims  
-2. Displays claims in readable order  
-3. Supports scrolling if needed  
-
-**Post-Conditions:**  
-- User can review extracted claims  
-
----
-
-## 4.11 Use Case 11 – Package Structured Claims for Agent
-**Use Case ID:** `VER-MVP-011-PackageClaimsForAgent`  
-**Level:** Internal system process  
-
-**Actor:**  
-FastAPI Backend
-
-**System Behavior:**  
-1. Builds agent-ready payload  
-2. Includes claim IDs and metadata  
-3. Prepares payload for transmission  
-
----
-
-## 4.12 Use Case 12 – Send Claims to Veritas Agent
-**Use Case ID:** `VER-MVP-012-SendClaimsToAgent`  
-**Level:** Internal system process  
-
-**Actor:**  
-FastAPI Backend
-
-**System Behavior:**  
-1. Sends payload to ADK agent  
-2. Handles retries and timeouts  
-
----
-
-## 4.13 Use Case 13 – Perform Evidence-Based Analysis
-**Use Case ID:** `VER-MVP-013-AgentEvidenceAnalysis`  
-**Level:** Internal system process  
-
-**Actor:**  
-Veritas Analysis Agent
-
-**System Behavior:**  
-1. Evaluates claims  
-2. Assigns verdicts and scores  
-3. Generates explanations  
-
----
-
-## 4.14 Use Case 14 – Receive Analysis Results from Agent
-**Use Case ID:** `VER-MVP-014-ReceiveAgentResults`  
-**Level:** Internal system process  
-
-**Actor:**  
-FastAPI Backend
-
-**System Behavior:**  
-1. Parses agent response  
-2. Validates structure  
-3. Prepares results  
-
----
-
-## 4.15 Use Case 15 – Receive Backend Results in Extension
-**Use Case ID:** `VER-MVP-015-ReceiveBackendResults`  
-**Level:** Internal system process  
+## 4.4 Use Case 4 – Display Article Overview
+**Use Case ID:** `VER-MVP-004-DisplayArticleOverview`  
+**Level:** System-level UI feedback
 
 **Actor:**  
 Veritas Browser Extension
 
 **System Behavior:**  
-1. Parses backend response  
-2. Stores results  
-3. Updates UI  
+1. Displays the detected source  
+2. Displays the normalized publication date  
+3. Displays the total number of claims detected  
+
+**Post-Conditions:**  
+- The user sees the article metadata used by the system  
 
 ---
 
-## 4.16 Use Case 16 – Annotate Article with Verdict Indicators
-**Use Case ID:** `VER-MVP-016-AnnotateArticle`  
-**Level:** System-level end-to-end  
+## 4.5 Use Case 5 – Display Extracted Claims
+**Use Case ID:** `VER-MVP-005-DisplayExtractedClaims`  
+**Level:** System-level UI interaction
 
 **Actor:**  
-User via Veritas Browser Extension
+Veritas Browser Extension
 
 **System Behavior:**  
-1. Maps claims to article text  
-2. Inserts verdict indicators  
-3. Displays explanations  
+1. Renders the ordered list of extracted claims  
+2. Displays each claim with its stable identifier when available  
+3. Preserves the ranked order returned by the backend  
+
+**Post-Conditions:**  
+- The user can inspect the statements that informed the analysis  
 
 ---
 
-## 4.17 Use Case 17 – Manage User-Friendly Settings
-**Use Case ID:** `VER-MVP-017-ManageUserSettings`  
-**Level:** System-level UI interaction  
+## 4.6 Use Case 6 – Analyze Political Leaning
+**Use Case ID:** `VER-MVP-006-AnalyzePoliticalLeaning`  
+**Level:** Internal system process
+
+**Actor:**  
+FastAPI Backend with Gemini analysis
+
+**System Behavior:**  
+1. Receives article source, publication date, title, article text, and extracted claims  
+2. Builds a structured prompt focused only on political framing and leaning  
+3. Sends the prompt to Gemini  
+4. Parses the returned JSON response  
+5. Produces a verdict, summary, confidence, source bias, language bias, and framing bias  
+
+**Post-Conditions:**  
+- A structured political leaning estimate is available for rendering  
+
+---
+
+## 4.7 Use Case 7 – Display Leaning Summary
+**Use Case ID:** `VER-MVP-007-DisplayLeaningSummary`  
+**Level:** System-level UI feedback
+
+**Actor:**  
+Veritas Browser Extension
+
+**System Behavior:**  
+1. Displays the verdict in the popup  
+2. Applies visual styling based on left, center, right, or unclear categories  
+3. Displays a short explanatory summary returned by the backend  
+
+**Post-Conditions:**  
+- The user sees the article’s estimated political leaning and explanation  
+
+---
+
+## 4.8 Use Case 8 – Display Bias Signals
+**Use Case ID:** `VER-MVP-008-DisplayBiasSignals`  
+**Level:** System-level UI feedback
+
+**Actor:**  
+Veritas Browser Extension
+
+**System Behavior:**  
+1. Displays confidence as a percentage  
+2. Displays source bias as a numeric score  
+3. Displays language bias as a numeric score  
+4. Displays framing bias as a numeric score  
+
+**Post-Conditions:**  
+- The user receives a more transparent breakdown of the estimate  
+
+---
+
+## 4.9 Use Case 9 – Manage Popup Settings
+**Use Case ID:** `VER-MVP-009-ManagePopupSettings`  
+**Level:** System-level UI interaction
 
 **Actor:**  
 User
 
 **System Behavior:**  
-1. Displays settings  
-2. Loads preferences  
-3. Saves changes  
-
----
-
-## 4.18 Use Case 18 – Synchronize UI and Backend API
-**Use Case ID:** `VER-MVP-018-SyncUIBackendAPI`  
-**Level:** System-level backend integration  
-
-**Actor:**  
-System
-
-**System Behavior:**  
-1. Aligns request/response schemas  
-2. Maintains compatibility across components  
+1. Loads saved popup settings from local storage  
+2. Applies dark mode if enabled  
+3. Shows or hides overview, claims, and debug sections based on preferences  
+4. Navigates to a dedicated settings page when requested  
 
 **Post-Conditions:**  
-- UI and backend remain synchronized  
-
+- The popup reflects the user’s saved display preferences  
 
 # 5. Use Case Diagram
 
 ### Figure 3.
-
 ```mermaid
 flowchart LR
 
-%% Actors
 U([User])
 EXT([Veritas Extension])
 BE([FastAPI Backend])
-AG([Veritas Agent])
+AI([Gemini Analyzer])
 
-%% Use Cases
-UC1((UC1 Launch Extension on Article))
-UC2((UC2 Capture Article Text))
-UC3((UC3 Send Article Data to Backend))
-UC4((UC4 Validate Incoming Article Data))
-UC5((UC5 Extract Claims from Text))
-UC6((UC6 Package Claims for Agent))
-UC7((UC7 Send Claims to Veritas Agent))
-UC8((UC8 Perform Evidence-Based Analysis))
-UC9((UC9 Receive Analysis Results from Agent))
-UC10((UC10 Receive Backend Results))
-UC11((UC11 Annotate Article with Indicators))
+UC1((Launch Extension))
+UC2((Extract Article Content))
+UC3((Extract Ranked Claims))
+UC4((Display Article Overview))
+UC5((Display Extracted Claims))
+UC6((Analyze Political Leaning))
+UC7((Display Leaning Summary))
+UC8((Display Bias Signals))
+UC9((Manage Popup Settings))
 
-%% Relationships
 U --> UC1
 EXT --> UC2
-EXT --> UC3
-BE --> UC4
-BE --> UC5
+BE --> UC3
+EXT --> UC4
+EXT --> UC5
 BE --> UC6
-BE --> UC7
-AG --> UC8
-BE --> UC9
-EXT --> UC10
-EXT --> UC11
-U --> UC11
+AI --> UC6
+EXT --> UC7
+EXT --> UC8
+U --> UC9
+EXT --> UC9
 ```
-# 6. Class Diagram
-### Figure 4.
 
+# 6. Class Diagram
+
+### Figure 4.
 ```mermaid
 classDiagram
 direction LR
 
-class VeritasExtension {
-  +launchAnalysis()
-  +showLoading()
-  +renderAnnotations(results)
+class ExtractRequest {
+  +url: HttpUrl
+  +title: str
+  +text: str
+  +published_at: str
+  +max_claims: int
 }
 
-class ContentScript {
-  +captureArticleText(): string
-  +getPageUrl(): string
+class ExtractResponse {
+  +ok: bool
+  +source: str
+  +publication_date: str
+  +claims_detected: int
+  +claims: list[Claim]
 }
 
-class AnalysisRequest {
-  -articleText: string
-  -url: string
-  -requestId: string
+class AnalyzeRequest {
+  +url: HttpUrl
+  +source: str
+  +publication_date: str
+  +title: str
+  +article_text: str
+  +claims: list[Claim]
 }
 
-class FastAPIBackend {
-  +validateRequest(req)
-  +processArticle(req)
-}
-
-class ClaimExtractor {
-  +extractClaims(text): Claim[]
-}
-
-class AgentClient {
-  +sendClaims(claims): ClaimResult[]
-}
-
-class VeritasAgent {
-  +analyzeClaims(claims): ClaimResult[]
+class AnalyzeResponse {
+  +ok: bool
+  +verdict: str
+  +summary: str
+  +confidence: float
+  +source_bias: float
+  +language_bias: float
+  +framing_bias: float
 }
 
 class Claim {
-  +id: string
-  +normalizedText: string
-  +sourceSpanRef: string
+  +id: str
+  +text: str
+  +score: int
+  +sentence_index: int
 }
 
-class ClaimResult {
-  +claimId: string
-  +verdict: string
-  +truthScore: int
-  +biasScore: int
-  +explanation: string
+class FastAPIBackend {
+  +health_check()
+  +extract(req)
+  +analyze(req)
 }
 
-VeritasExtension --> ContentScript : uses
-ContentScript --> AnalysisRequest : creates
-VeritasExtension --> FastAPIBackend : sends requests
-FastAPIBackend --> ClaimExtractor : uses
-FastAPIBackend --> AgentClient : uses
-ClaimExtractor --> Claim : creates
-AgentClient --> VeritasAgent : calls
-VeritasAgent --> ClaimResult : returns
-FastAPIBackend --> ClaimResult : aggregates
-VeritasExtension --> ClaimResult : displays
+class PopupUI {
+  +renderExtractResponse(data)
+  +renderAnalyzeResponse(data)
+  +applyPopupSettings(settings)
+}
+
+class GeminiAnalyzer {
+  +generate_content(prompt)
+}
+
+ExtractRequest --> FastAPIBackend : sent to
+FastAPIBackend --> ExtractResponse : returns
+AnalyzeRequest --> FastAPIBackend : sent to
+FastAPIBackend --> AnalyzeResponse : returns
+FastAPIBackend --> Claim : creates
+FastAPIBackend --> GeminiAnalyzer : calls
+PopupUI --> ExtractRequest : builds
+PopupUI --> AnalyzeRequest : builds
+PopupUI --> ExtractResponse : renders
+PopupUI --> AnalyzeResponse : renders
 ```
+
 # 7. Sequence Diagrams
+
 ## 7.1 UC1 - `VER-MVP-001-LaunchExtension`
+
 ### Figure 5.
 ```mermaid
 sequenceDiagram
     autonumber
     actor User
-    participant Extension as "Veritas Extension"
+    participant Popup as Veritas Popup
 
-    User->>Extension: Click Veritas icon
-    Extension->>Extension: Check if page is eligible
-    Extension->>Extension: Initialize analysis session
-    Extension-->>User: Show loading / analysis started UI
-  ```
+    User->>Popup: Click Veritas icon
+    Popup->>Popup: Initialize UI state
+    Popup-->>User: Show Analyze Leaning action
+```
 
+## 7.2 UC2 - `VER-MVP-002-ExtractArticleContent`
 
-## 7.2 UC2 - `VER-MVP-002-CaptureArticleText`  
 ### Figure 6.
 ```mermaid
 sequenceDiagram
     autonumber
     actor User
-    participant Extension as "Veritas Extension"
-    participant CS as "Content Script"
+    participant Popup as Veritas Popup
+    participant Page as Active Tab
 
-    User->>Extension: Request analysis
-    Extension->>CS: Capture article text + URL
-    CS->>CS: Identify article container
-    CS->>CS: Extract and clean visible text
-    CS-->>Extension: Return cleaned text + URL
-    Extension->>Extension: Store article payload
+    User->>Popup: Click Analyze Leaning
+    Popup->>Page: Execute extraction script
+    Page-->>Popup: Return url title text and published_at
+    Popup->>Popup: Prepare /extract payload
 ```
 
+## 7.3 UC3 - `VER-MVP-003-ExtractClaims`
 
-## 7.3 UC3 - `VER-MVP-003-SendArticleDataToBackend` 
 ### Figure 7.
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User
-    participant Extension as "Veritas Extension"
-    participant Backend as "FastAPI Backend"
+    participant Popup as Veritas Popup
+    participant Backend as FastAPI Backend
 
-    User->>Extension: Trigger analysis
-    Extension->>Extension: Build JSON payload
-    Extension->>Backend: POST /analyze_article
-    Backend-->>Extension: 200/202 Accepted
-    Extension->>Extension: Enter "processing" state
+    Popup->>Backend: POST /extract
+    Backend->>Backend: Normalize text and strip boilerplate
+    Backend->>Backend: Segment sentences with spaCy
+    Backend->>Backend: Score and rank claims
+    Backend-->>Popup: ExtractResponse with ranked claims
 ```
 
+## 7.4 UC6 - `VER-MVP-006-AnalyzePoliticalLeaning`
 
-## 7.4 UC4 -  `VER-MVP-004-ValidateArticleData`  
 ### Figure 8.
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Extension as "Veritas Extension"
-    participant Backend as "FastAPI Backend"
+    participant Popup as Veritas Popup
+    participant Backend as FastAPI Backend
+    participant Gemini as Gemini Analyzer
 
-    Extension->>Backend: POST article text + URL
-    Backend->>Backend: Parse JSON body
-    Backend->>Backend: Validate required fields and length
-    alt Valid payload
-        Backend-->>Extension: 200 OK (processing started)
-    else Invalid payload
-        Backend-->>Extension: 4xx error + message
-        Extension->>Extension: Display validation error
-    end
+    Popup->>Backend: POST /analyze
+    Backend->>Backend: Build analysis prompt
+    Backend->>Gemini: generate_content(prompt)
+    Gemini-->>Backend: JSON verdict summary and bias values
+    Backend->>Backend: Parse and clamp returned values
+    Backend-->>Popup: AnalyzeResponse
 ```
 
+## 7.5 UC7 and UC8 - Display Results
 
-## 7.5 UC5 - `VER-MVP-005-ExtractClaims`  
 ### Figure 9.
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Backend as "FastAPI Backend"
-    participant Extractor as "ClaimExtractor"
-
-    Backend->>Extractor: extractClaims(articleText)
-    Extractor->>Extractor: Split text into sentences
-    Extractor->>Extractor: Identify candidate claims
-    Extractor->>Extractor: Normalize claims and assign IDs
-    Extractor-->>Backend: List<Claim>
-    Backend->>Backend: Store structured claims
-```
-
-
-## 7.6 UC6 - `VER-MVP-006-PackageClaimsForAgent`  
-### Figure 10.
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Backend as "FastAPI Backend"
-
-    Backend->>Backend: Read claims + article metadata
-    alt Claims found
-        Backend->>Backend: Build payload for agent
-        Backend-->>Backend: Payload ready
-    else No claims
-        Backend-->>Backend: Mark request as "no claims found"
-    end
-```
-
-
-## 7.7 UC7 - `VER-MVP-007-SendClaimsToAgent`  
-### Figure 11.
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Backend as "FastAPI Backend"
-    participant AgentClient as "AgentClient"
-    participant Agent as "Veritas Agent"
-
-    Backend->>AgentClient: sendClaims(payload)
-    AgentClient->>Agent: POST /analyze_claims
-    Agent->>Agent: Queue and run analysis
-    Agent-->>AgentClient: ClaimResult[] or error
-    AgentClient-->>Backend: Parsed results or error
-```
-
-
-## 7.8 UC8 - `VER-MVP-008-AgentEvidenceAnalysis`  
-### Figure 12.
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Agent as "Veritas Agent"
-    participant Sources as "Evidence Sources"
-
-    Agent->>Agent: Iterate over claims
-    loop For each claim
-        Agent->>Sources: Search evidence sources
-        Sources-->>Agent: Return evidence snippets
-        Agent->>Agent: Compare claim vs evidence
-        Agent->>Agent: Assign verdict + scores
-        Agent->>Agent: Generate explanation
-    end
-    Agent-->>Agent: Build ClaimResult[] payload
-```
-
-
-## 7.9 UC9 - `VER-MVP-009-ReceiveAgentResults`
-### Figure 13.
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Backend as "FastAPI Backend"
-    participant AgentClient as "AgentClient"
-    participant Agent as "Veritas Agent"
-
-    Backend->>AgentClient: Await analysis response
-    AgentClient->>Agent: Receive HTTP response
-    Agent-->>AgentClient: Return ClaimResult[]
-    AgentClient-->>Backend: Parsed ClaimResult[]
-    Backend->>Backend: Validate schema and fields
-    Backend->>Backend: Map results to claim IDs
-    Backend-->>Backend: Normalized dataset ready for extension
-```
-
-
-## 7.10 UC10 - `VER-MVP-010-ReceiveBackendResults`  
-### Figure 14.
-```mermaid
-sequenceDiagram
-    autonumber
     actor User
-    participant Extension as "Veritas Extension"
-    participant Backend as "FastAPI Backend"
+    participant Popup as Veritas Popup
 
-    Extension->>Backend: Await analysis response
-    Backend-->>Extension: JSON { claims[], verdicts, scores, explanations }
-    Extension->>Extension: Parse JSON
-    Extension->>Extension: Validate essential fields
-    Extension->>Extension: Store results for this tab
-    Extension-->>User: Update UI from "processing" to "ready"
+    Popup->>Popup: Render verdict summary
+    Popup->>Popup: Render confidence and bias scores
+    Popup->>Popup: Apply verdict styling
+    Popup-->>User: Show leaning summary and signal breakdown
 ```
 
+# 8. Strengths and Limitations
 
-## 7.11 UC11 - `VER-MVP-011-AnnotateArticle` 
-### Figure 15.
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User
-    participant Extension as "Veritas Extension"
-    participant CS as "Content Script"
+## 8.1 Strengths
+The current Veritas model provides several advantages. It performs article-level analysis rather than relying only on source reputation. It preserves ranked extracted claims so users can see part of the textual basis for the result. It breaks the leaning estimate into multiple signals, which makes the output more interpretable than a single opaque label. It also runs directly from the browser popup, which makes the workflow immediate and convenient.
 
-    Extension->>CS: Request claim-to-DOM mapping
-    CS->>CS: Locate spans/paragraphs for each claimId
-    CS-->>Extension: Mapping claimId -> DOM node
-    Extension->>CS: Inject badges and tooltip hooks
-    CS-->>User: Render annotated article
-    User->>CS: Hover or click badge
-    CS-->>User: Show tooltip (verdict, truth score, bias score, explanation)
-```
+## 8.2 Limitations
+Veritas does not fact-check articles and should not be interpreted as a truth-verification engine. Its verdict is an estimate of political leaning based on textual and source-level patterns available in the prompt. The system depends on successful extraction from the active webpage, so poorly structured pages may reduce analysis quality. The source bias, language bias, and framing bias values are model-estimated signals rather than objectively measured ground truth. In addition, the Gemini response can be affected by prompt sensitivity, quota limits, or unavailable article context.
 
-
-
-
-
+# 9. Future Work
+Future development can improve Veritas in several directions. The extraction process can be refined to better isolate article text on more complex sites. Additional UI views could visualize how strongly each claim contributes to the leaning estimate. The system could also support side-by-side comparison between multiple articles on the same event. Further work may include prompt tuning, calibration of bias score interpretation, stronger fallback behavior when extraction quality is low, and expanded settings that let users control which analysis sections are shown in the popup.
