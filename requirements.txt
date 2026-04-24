@@ -11,10 +11,8 @@ python-dateutil>=2.9
 # ---- NLP (claim extraction) ----
 spacy>=3.7
 
-# ---- Google ADK ----
-google-adk>=0.4
+# ---- Google Gemini SDK ----
+google-genai>=1.0.0
 
 # ---- Environment variables ----
 python-dotenv>=1.0
-
-
